@@ -306,3 +306,26 @@ and its commit `e1775e7`. Material:
 - Links to add: Info button on the card, ✦ in the tree entry, game-title link
   on the shrine page to `../forays/`; shrine page gets its own og block
   (image `roguelikes/forays.png`).
+
+### Stage 8 — shrine (done)
+
+- **Shrine:** https://ruzzoli.de/roguelikes/shrine/forays.html
+  (`~/Games/roguelikes-index/shrine/forays.html` + `shrine/forays/`:
+  `manual.html` = the five upstream `ForaysHelp/*.txt` + README at `3ed1559`,
+  `changelog.txt` = RogueBasin dates + GitHub release notes 0.8.3/0.8.4 +
+  upstream commit log, `license.txt` = `LICENSE.txt`). Hand-written og block.
+  Links: card Info button, tree ✦, game-title link (already in
+  `web/index.html` since stage 7) all live. Phone width (375 px) checked.
+- **Lineage (verified):** RogueBasin: development began October 2011, first
+  release 0.5.0 on 28 January 2012, 0.8.4 on 6 November 2015 (GitHub release
+  2015-11-07 UTC), development stopped 2016; influences ADOM, DoomRL, Angband,
+  Brogue. Card and tree year corrected 2011 → 2012. Credits from
+  forays.github.io (Derrick S. Creamer; site by Tommy Ettinger/notostraca;
+  logo L.C. Smith/Soundlust).
+- **Missing:** no changelog file in the game (built from releases + git log);
+  no walkthrough or strategy guide found (page gives rules of thumb from the
+  help and links RogueBasin, forays.github.io). The manual exists (help files).
+- **Cheats:** the `~` debug menu is behind `if(false)` in `Actor.cs`:
+  unreachable in every build.
+
+Next: stage 9 (graveyard + leaderboard).
