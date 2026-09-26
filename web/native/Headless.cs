@@ -10,7 +10,7 @@ namespace Forays{
 	class QuitCalled : Exception {}
 	class Headless : ITermBackend{
 		Random rng; int left; bool save; Queue<ConsoleKeyInfo> script = new Queue<ConsoleKeyInfo>();
-		public int[] last, final; public int presents;
+		public int[] last, final; public int presents; public string lastInfo = "";
 		static readonly string pool = "abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ0123456789<>.,;:?/!@#$%^&*()-=+[]{}\\|'\"`~ \r\x1b\t";
 		public Headless(int seed,int keys,bool save_){
 			rng = new Random(seed); left = keys; save = save_;
@@ -52,7 +52,7 @@ namespace Forays{
 			return K(pool[rng.Next(pool.Length)]);
 		}
 		public void Sleep(int ms){}
-		public void Present(int[] cells,int r,int c,bool vis){ last = cells; ++presents; }
+		public void Present(int[] cells,int r,int c,bool vis,string info){ if(info != "") lastInfo = info; last = cells; ++presents; }
 		public void Quit(){ throw new QuitCalled(); }
 		public string Dump(){
 			int[] last = final ?? this.last;
@@ -79,6 +79,7 @@ namespace Forays{
 			if(File.Exists("error.txt") && !File.ReadAllText("error.txt").Contains("Forays.KeysDone") && !File.ReadAllText("error.txt").Contains("Forays.QuitCalled")){ Console.WriteLine("error.txt: " + File.ReadAllText("error.txt")); rc = 3; }
 			Console.WriteLine("seed " + seed + " presents " + h.presents + " save " + File.Exists("forays.sav") + " rc " + rc);
 			if(Environment.GetEnvironmentVariable("DUMP") != null) Console.WriteLine(h.Dump());
+			if(Environment.GetEnvironmentVariable("INFO") != null) Console.WriteLine(h.lastInfo);
 			return rc;
 		}
 	}

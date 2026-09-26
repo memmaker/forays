@@ -876,6 +876,9 @@ namespace Forays{
 					recentwin = Global.BOSS_KILLED? 'W' : '-';
 					recentcause = Global.KILLED_BY;
 					on_highscore_list = false;
+					if(!Global.SAVING && File.Exists("forays.sav")){ //RVIP: the web build autosaves; a finished run leaves no save
+						File.Delete("forays.sav");
+					}
 					if(!Global.SAVING){
 						List<string> newhighscores = new List<string>();
 						int num_scores = 0;

@@ -11,7 +11,7 @@ namespace Forays{
 		bool KeyAvailable();
 		ConsoleKeyInfo ReadKey(); //blocks until a key arrives
 		void Sleep(int ms); //delay for animations (screen is presented first)
-		void Present(int[] cells,int cursor_row,int cursor_col,bool cursor_visible);
+		void Present(int[] cells,int cursor_row,int cursor_col,bool cursor_visible,string info); //info: JSON page state, "" = unchanged
 		void Quit(); //the game asked to exit; must not return
 	}
 	public static class Term{
@@ -38,7 +38,7 @@ namespace Forays{
 		public static bool KeyAvailable{ get{ return pushed.Count > 0 || Backend.KeyAvailable(); } }
 		public static ConsoleKeyInfo ReadKey(bool intercept){
 			if(pushed.Count > 0) return pushed.Dequeue();
-			Present();
+			Present(true);
 			return Backend.ReadKey();
 		}
 		public static void Sleep(int ms){
@@ -56,7 +56,8 @@ namespace Forays{
 			return (r << 16) | (g << 8) | b;
 		}
 		//cells: 3 ints per cell (char, fg 0xRRGGBB, bg 0xRRGGBB), row-major SCREEN_H x SCREEN_W
-		public static void Present(){
+		public static void Present(){ Present(false); }
+		public static void Present(bool with_info){
 			int n = 0;
 			for(int r=0;r<Global.SCREEN_H;++r){
 				for(int c=0;c<Global.SCREEN_W;++c){
@@ -66,7 +67,7 @@ namespace Forays{
 					cells[n++] = RGB(ch.bgcolor);
 				}
 			}
-			Backend.Present(cells,CursorTop,CursorLeft,CursorVisible);
+			Backend.Present(cells,CursorTop,CursorLeft,CursorVisible,with_info? Rvip.Info() : "");
 		}
 		//Browser key -> ConsoleKeyInfo. code = KeyboardEvent.code, key = KeyboardEvent.key.
 		static Dictionary<char,KeyValuePair<ConsoleKey,bool>> char_keys = null;

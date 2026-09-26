@@ -60,6 +60,8 @@ try {
 	for (const k of args) {
 		if (k.startsWith('wait:')) await page.waitForTimeout(+k.slice(5));
 		else if (k === 'reload') await boot();
+		else if (k.startsWith('click:')) { await page.click(k.slice(6)); await settle(); }
+		else if (k.startsWith('eval:')) console.log('eval:', JSON.stringify(await page.evaluate(k.slice(5))));
 		else if (k.startsWith('random:')) await random(+k.split(':')[1], +(k.split(':')[2] || 1));
 		else if (k.startsWith('text:')) { for (const c of k.slice(5)) { await page.keyboard.type(c); await settle(); } }
 		else { await page.keyboard.press(k); await settle(); }

@@ -483,6 +483,7 @@ namespace Forays{
 			return false;
 		}
 		public static void Blank(){
+			Rvip.full = true; //RVIP: a whole-screen view
 			CursorVisible = false;
 			for(int i=0;i<Global.SCREEN_H;++i){
 				WriteString(i,0,"".PadRight(Global.SCREEN_W));

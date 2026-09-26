@@ -204,4 +204,49 @@ holds: explore, menus, colours, panes are decided in C#.
   glyphs (integer scale, nearest-neighbour, tinted per colour) instead of the
   browser's monospace font — the look of the OpenGL build.
 
-Next: stage 5 (web page windows).
+### Stage 5 — web page (done, not deployed)
+
+- **Windows** (`web/index.html`, `web/forays.js`, shared `rvip-wm.js`):
+  Map, Character (the game's left column), Messages (log), Inventory,
+  Visible — on by default; Equipment via the Windows drop-down. One/multi
+  window switch, drag/resize/rename/A−/A+, layout + zoom + font saved in
+  IndexedDB (`/forays/files`, key `web-layout.json`), survives reload
+  (tested). One window = the whole 88×28 screen in the map window.
+- **Game-side (W0):** `Rvip.Info()` (Forays/Rvip.cs) builds the page state
+  as JSON on every key wait (`Term.Present(true)`): `panes` (the game's
+  screen regions: map+command bar `[3,21,25,67]`, side `[0,0,28,21]`,
+  message rows `[0,21,3,67]`), `full` (whole-screen view: set by
+  `Screen.Blank()` and `UI.DisplayCharacterInfo`, cleared by
+  `UI.DisplayStats()`; the page then shows the whole screen over the
+  windows), `prompt` (live message rows, not the dark-grey old ones →
+  `RvipWM.prompt.text`), `atCmd` (`Term.AtCommandPrompt`, set around the
+  command read in `Rvip.CommandKey` → `RvipWM.prompt.wait`), `hero` (map
+  cell → `RvipWM.center`), `log` new lines / `logReplace` (the game's own
+  "(xN)" folding) → `RvipWM.log`, `inv` / `equip` with the items' own
+  colours (`Colors.ResolveColor(item.color)`, weapons by
+  `EnchantmentColor()`), `vis` (monsters `CanSee`, items on seen tiles) →
+  `RvipWM.visible`. Info errors are caught (never crash the game).
+- **Camera:** map pane centred on the player when zoomed (tested: zoom +5,
+  canvas margin follows the hero), clamped at the edges.
+- **Persistence (W5):** save/options/high scores/keys/name mirrored to IDB;
+  **autosave**: the page sends a `RvipSave` pseudo-key every 2 min and when
+  the tab is hidden; the game saves only at the command prompt with no keys
+  pending (`Rvip.Autosave`: same state as the `q` save, also writes
+  options), then goes on. A finished run (death/abandon) deletes
+  `forays.sav` (Main.cs, after the game loop). Tested: autosave → reload →
+  "Resume saved game" → same game. Export / Import / New game buttons.
+  Quit → "Play again" overlay.
+- **Hosting:** needs SharedArrayBuffer → `coi-sw.js` service worker adds
+  COOP/COEP (scope = the game folder), so plain static hosting works
+  (`sh web/serve.sh` = `python3 -m http.server` on `web/dist`; all tests use
+  that). `web/deploy.sh` written like BOSS's, with the dirty/unpushed guard,
+  **never run** (no deploy key in the cloud). Target
+  `https://ruzzoli.de/roguelikes/forays/`. Optional nginx COOP/COEP lines
+  are in its comment.
+- Tests: `node web/test.mjs` with `click:<css>`, `eval:<js>`, `reload`,
+  `--keep` (persistent profile); screenshots `s5-multi`, `s5-help` (whole
+  screen over windows), `s5-single`, `s5-zoom`.
+- Not done: mouse (the game has MouseUI for its GL build; the page sends no
+  mouse events), link preview (5b, needs the index card), beacon (stage 9).
+
+Next: stage 6 (docs + sound).

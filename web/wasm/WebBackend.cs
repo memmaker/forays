@@ -23,7 +23,6 @@ namespace Forays{
 
 		public static readonly string[] Persistent = {"forays.sav","options.txt","highscore.txt","keys.txt","name.txt"};
 		Dictionary<string,long> stamps = new Dictionary<string,long>();
-		public static string Info = ""; //extra state for the page (JSON), set by the game each present
 
 		public WebBackend(){
 			Directory.CreateDirectory("ForaysHelp");
@@ -73,14 +72,15 @@ namespace Forays{
 				string s = JsWaitKey(-1); //"code\tkey\tmods" (mods: s c a)
 				string[] p = s.Split('\t');
 				if(p.Length < 3) continue;
+				if(p[0] == "RvipSave"){ Rvip.Autosave(); SyncFiles(); continue; } //the page asks (every 2 min, tab hidden)
 				if(Term.FromBrowser(p[0],p[1],p[2].Contains("s"),p[2].Contains("c"),p[2].Contains("a"),out ConsoleKeyInfo k)){
 					return k;
 				}
 			}
 		}
 		public void Sleep(int ms){ JsSleep(ms); }
-		public void Present(int[] cells,int row,int col,bool visible){
-			JsPresent(cells,row,col,visible,Info);
+		public void Present(int[] cells,int row,int col,bool visible,string info){
+			JsPresent(cells,row,col,visible,info);
 		}
 		public void Quit(){
 			SyncFiles();

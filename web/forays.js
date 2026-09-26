@@ -14,7 +14,7 @@ const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
 let worker, ring, db, running = false, ended = false;
 let scr = null, cur = { row: 0, col: 0, vis: false }, info = {}, dirty = true;
-let cv, ctx, px = 16, cw = 9, ch = 19, zoom = 0;
+let ctx, px = 16;
 
 function status(msg, isError) {
 	const s = $('status');
@@ -84,39 +84,129 @@ function onKey(e) {
 }
 
 /* ---------- drawing ---------- */
+/* The game (Rvip.Info) names the panes of its 88x28 screen: map (with the
+ * command bar under it), side (character column), msg (message rows -> the
+ * prompt line). Multi-window: each pane in its window, the whole screen over
+ * them while the game shows a whole-screen view (info.full). One window: the
+ * whole screen in the map window. */
 const hex = v => '#' + (v & 0xffffff).toString(16).padStart(6, '0');
-function fit() {
-	const b = $('full');
+let wm = null, rects = {}, L = { px: 0, font: 13, wm: null }, auto = true, saveT = 0;
+const one = () => !rects.side && !rects.inv && !rects.msg && !rects.vis && !rects.equip;
+function metrics(p) { ctx.font = p + 'px ' + FONT; return [Math.ceil(ctx.measureText('M').width), Math.ceil(p * 1.2)]; }
+function fitPx(w, h, C, R) {
 	let best = 8;
-	for (let p = 8; p <= 48; p++) {
-		ctx.font = p + 'px ' + FONT;
-		if (Math.ceil(ctx.measureText('M').width) * COLS <= b.clientWidth && Math.ceil(p * 1.2) * ROWS <= b.clientHeight) best = p;
-	}
+	for (let p = 8; p <= 48; p++) { const [a, b] = metrics(p); if (a * C <= w && b * R <= h) best = p; }
 	return best;
 }
-function layout() {
-	px = Math.max(8, fit() + zoom);
-	ctx.font = px + 'px ' + FONT;
-	cw = Math.ceil(ctx.measureText('M').width); ch = Math.ceil(px * 1.2);
-	const w = cw * COLS, h = ch * ROWS;
-	cv.width = w * dpr; cv.height = h * dpr; cv.style.width = w + 'px'; cv.style.height = h + 'px';
-	const b = $('full');
-	cv.style.left = Math.max(0, (b.clientWidth - w) / 2) + 'px'; cv.style.top = Math.max(0, (b.clientHeight - h) / 2) + 'px';
-	dirty = true;
+function size(c, w, h, p) {
+	if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+	c.style.width = w + 'px'; c.style.height = h + 'px';
+	const g = c.getContext('2d');
+	g.setTransform(dpr, 0, 0, dpr, 0, 0); g.font = p + 'px ' + FONT; g.textBaseline = 'middle'; g.textAlign = 'center';
+	return g;
 }
+/* cells r0..r0+R, c0..c0+C of the screen into canvas c at font size p */
+function blit(c, p, r0, c0, R, C) {
+	const [w, h] = metrics(p), g = size(c, C * w, R * h, p);
+	for (let r = 0; r < R; r++) for (let k = 0; k < C; k++) {
+		const i = ((r0 + r) * COLS + c0 + k) * 3, x = k * w, y = r * h;
+		g.fillStyle = hex(scr[i + 2]); g.fillRect(x, y, w, h);
+		const code = scr[i];
+		if (code > 32) { g.fillStyle = hex(scr[i + 1]); g.fillText(String.fromCharCode(code), x + w / 2, y + h / 2 + 1); }
+	}
+	const cr = cur.row - r0, cc = cur.col - c0;
+	if (cur.vis && cr >= 0 && cr < R && cc >= 0 && cc < C) { g.fillStyle = '#c0c0c0'; g.fillRect(cc * w, cr * h + h - 3, w, 2); }
+	return [w, h];
+}
+function paneOf(name) { return (info.panes && info.panes[name]) || { map: [3, 21, 25, 67], side: [0, 0, 28, 21], msg: [0, 21, 3, 67] }[name]; }
 function draw() {
 	requestAnimationFrame(draw);
-	if (!dirty || !scr) return;
+	if (!dirty || !scr || !wm) return;
 	dirty = false;
-	ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-	ctx.font = px + 'px ' + FONT; ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
-	for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-		const i = (r * COLS + c) * 3, x = c * cw, y = r * ch;
-		ctx.fillStyle = hex(scr[i + 2]); ctx.fillRect(x, y, cw, ch);
-		const code = scr[i];
-		if (code > 32) { ctx.fillStyle = hex(scr[i + 1]); ctx.fillText(String.fromCharCode(code), x + cw / 2, y + ch / 2 + 1); }
+	const full = $('full'), fcv = full.querySelector('canvas'), mcv = $('map').querySelector('canvas');
+	if (one() || info.full) {
+		/* whole screen: in the map window (one window) or over all windows */
+		const box = one() ? $('map') : full, c = one() ? mcv : fcv;
+		full.hidden = one();
+		const p = auto || info.full ? fitPx(box.clientWidth, box.clientHeight, COLS, ROWS) : px;
+		const [w, h] = blit(c, p, 0, 0, ROWS, COLS);
+		if (one() && info.hero && !info.full) {
+			const m = paneOf('map');
+			RvipWM.center(c, (m[1] + info.hero[1] + 0.5) * w, (m[0] + info.hero[0] + 0.5) * h, COLS * w, ROWS * h);
+		} else RvipWM.center(c, 0, 0, COLS * w, ROWS * h);
+		if (one()) return;
 	}
-	if (cur.vis) { ctx.fillStyle = '#c0c0c0'; ctx.fillRect(cur.col * cw, cur.row * ch + ch - 3, cw, 2); }
+	full.hidden = !info.full;
+	const m = paneOf('map'), s = paneOf('side');
+	const [w, h] = blit(mcv, px, m[0], m[1], m[2], m[3]);
+	if (info.hero) RvipWM.center(mcv, (info.hero[1] + 0.5) * w, (info.hero[0] + 0.5) * h, m[3] * w, m[2] * h);
+	else RvipWM.center(mcv, 0, 0, m[3] * w, m[2] * h);
+	if (rects.side) {
+		const sb = $('side'), sp = Math.min(px, fitPx(sb.clientWidth, sb.clientHeight, s[3], s[2]));
+		const scv = sb.querySelector('canvas'), [sw, sh] = blit(scv, sp, s[0], s[1], s[2], s[3]);
+		scv.style.marginTop = '0px'; scv.style.marginLeft = Math.max(0, (sb.clientWidth - s[3] * sw) / 2) + 'px';
+	}
+}
+/* lists the game sends: inventory [letter, glyph, name, colour], equipment [slot, name, colour] */
+function list(el, rows, fmt) {
+	const k = JSON.stringify(rows);
+	if (el._k === k) return;
+	el._k = k; el.textContent = '';
+	if (!rows.length) { const d = document.createElement('div'); d.className = 'wm-vh'; d.textContent = 'empty'; el.appendChild(d); }
+	rows.forEach(r => el.appendChild(fmt(r)));
+}
+function invRow(r) {
+	const d = document.createElement('div'), b = document.createElement('b');
+	b.textContent = r[1]; b.style.color = r[3]; d.style.color = r[3];
+	d.appendChild(document.createTextNode(r[0] + ') ')); d.appendChild(b); d.appendChild(document.createTextNode(' ' + r[2]));
+	return d;
+}
+function eqRow(r) {
+	const d = document.createElement('div');
+	if (r[0]) { const h = document.createElement('span'); h.className = 'wm-vh'; h.textContent = r[0] + ': '; d.appendChild(h); }
+	else d.style.paddingLeft = '1.5em';
+	const n = document.createElement('span'); n.textContent = r[1]; n.style.color = r[2]; d.appendChild(n);
+	return d;
+}
+function update(i) {
+	RvipWM.prompt.text(i.full ? '' : i.prompt || '');
+	RvipWM.prompt.wait(i.atCmd);
+	const log = $('log');
+	if (i.logReset) log.textContent = '';
+	if (i.log) i.log.forEach((l, n) => RvipWM.log(log, l, n === 0 && i.logReplace));
+	if (i.inv) list($('inv'), i.inv, invRow);
+	if (i.equip) list($('equip'), i.equip, eqRow);
+	if (i.vis !== undefined) RvipWM.visible($('vis'), i.vis);
+}
+function fonts() { ['log', 'inv', 'equip', 'vis'].forEach(id => { $(id).style.fontSize = L.font + 'px'; }); }
+function saveLayout() { clearTimeout(saveT); saveT = setTimeout(() => putFile('web-layout.json', new TextEncoder().encode(JSON.stringify(L))), 300); }
+function autoPx() {
+	const b = $('map'), m = paneOf('map');
+	return one() ? fitPx(b.clientWidth, b.clientHeight, COLS, ROWS) : fitPx(b.clientWidth, b.clientHeight, m[3], m[2]);
+}
+function layout() { if (auto) px = autoPx(); dirty = true; }
+async function makeWM() {
+	try { const d = await getFile('web-layout.json'); if (d) { const s = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, font: s.font || 13, wm: s.wm }; } } catch (_) { }
+	if (L.px >= 8 && L.px <= 48) { px = L.px; auto = false; }
+	fonts();
+	wm = RvipWM({
+		area: $('game'), menu: $('btn-layout'),
+		wins: [{ id: 'map', title: 'Map' }, { id: 'side', title: 'Character' }, { id: 'msg', title: 'Messages' },
+			{ id: 'inv', title: 'Inventory' }, { id: 'equip', title: 'Equipment' }, { id: 'vis', title: 'Visible' }],
+		multi: { d: 'h', r: 0.74, a: { d: 'h', r: 0.2, a: 'side', b: 'map' }, b: { d: 'v', r: 0.4, a: 'msg', b: { d: 'v', r: 0.55, a: 'inv', b: 'vis' } } },
+		single: 'map',
+		state: L.wm, noFont: 'map',
+		save: st => { L.wm = st; saveLayout(); },
+		layout: r => { rects = r; layout(); },
+		font: (id, d) => { if (id === 'side') { zoom(d); return; } L.font = Math.max(8, Math.min(28, L.font + d)); fonts(); saveLayout(); },
+		onReset: () => { auto = true; L.px = 0; L.font = 13; L.wm = wm.state(); fonts(); layout(); saveLayout(); }
+	});
+	wm.apply();
+}
+function zoom(d) {
+	auto = false;
+	px = Math.max(8, Math.min(48, px + d));
+	L.px = px; saveLayout(); dirty = true;
 }
 
 /* ---------- worker ---------- */
@@ -125,9 +215,9 @@ function onMessage(e) {
 	switch (m.t) {
 	case 'screen':
 		scr = m.cells; cur = { row: m.row, col: m.col, vis: m.vis };
-		try { info = m.info ? JSON.parse(m.info) : {}; } catch (_) { info = {}; }
+		if (m.info) { try { info = JSON.parse(m.info); update(info); } catch (err) { console.error('info', err); } }
 		dirty = true;
-		if (!running) { running = true; status(''); $('game').hidden = false; layout(); }
+		if (!running) { running = true; status(''); $('game').hidden = false; wm.apply(); layout(); }
 		break;
 	case 'store': putFile(m.name, m.data); break;
 	case 'delete': delFile(m.name); break;
@@ -140,11 +230,15 @@ function gameOver() {
 	ended = true; running = false;
 	setTimeout(() => { $('overlay').hidden = false; }, 300);
 }
+/* autosave (RVIP W5): the game saves only while it waits for a command */
+function requestSave() { if (running && !ended && info.atCmd) sendKey('RvipSave', '', ''); }
+setInterval(requestSave, 120000);
+document.addEventListener('visibilitychange', () => { if (document.hidden) requestSave(); });
 
 /* ---------- top bar ---------- */
 function bar() {
-	$('btn-zoom-in').onclick = () => { zoom++; layout(); };
-	$('btn-zoom-out').onclick = () => { zoom--; layout(); };
+	$('btn-zoom-in').onclick = () => zoom(1);
+	$('btn-zoom-out').onclick = () => zoom(-1);
 	$('btn-restart').onclick = () => location.reload();
 	$('btn-new').onclick = async () => {
 		if (!confirm('Delete the saved game in this browser?')) return;
@@ -180,16 +274,19 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('help')
 window.forays = {
 	text() { if (!scr) return ''; let s = ''; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { const k = scr[(r * COLS + c) * 3]; s += k < 32 ? ' ' : String.fromCharCode(k); } s += '\n'; } return s; },
 	key: sendKey,
+	save: requestSave,
+	get layout() { return { rects, px, auto, full: info.full }; },
 	get info() { return info; },
 	get running() { return running; },
 	get ended() { return ended; },
 };
 
 async function main() {
-	cv = $('full').querySelector('canvas'); ctx = cv.getContext('2d');
+	ctx = document.createElement('canvas').getContext('2d');
 	bar();
 	if (!await isolate()) { status('This browser cannot run the game here (no cross-origin isolation / SharedArrayBuffer).', true); return; }
 	db = await openDB();
+	await makeWM();
 	const files = await allFiles();
 	const seed = new URLSearchParams(location.search).get('seed');
 	if (seed) files.seed = new TextEncoder().encode(seed);
@@ -199,7 +296,7 @@ async function main() {
 	worker.onerror = e => status('The game crashed: ' + e.message + ' — reload the page.', true);
 	worker.postMessage({ t: 'init', ring: ring.buffer, files });
 	window.addEventListener('keydown', onKey);
-	window.addEventListener('resize', layout);
+	window.addEventListener('resize', () => { wm.apply(); layout(); });
 	window.addEventListener('beforeunload', e => { if (running) { e.preventDefault(); e.returnValue = ''; } });
 	requestAnimationFrame(draw);
 }

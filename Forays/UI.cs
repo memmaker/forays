@@ -73,6 +73,7 @@ namespace Forays{
 			};
 
 		public static void DisplayStats(){
+			Rvip.full = false; //RVIP: back to the map and side panel
 			bool buttons = MouseUI.AutomaticButtonsFromStrings;
 			MouseUI.AutomaticButtonsFromStrings = false;
 			bool commands_darkened = MouseUI.Mode != MouseMode.Map;
@@ -585,6 +586,7 @@ namespace Forays{
 		}
 		public static int DisplayCharacterInfo(){ return DisplayCharacterInfo(true); }
 		public static int DisplayCharacterInfo(bool readkey){
+			Rvip.full = true; //RVIP
 			MouseUI.PushButtonMap();
 			UI.DisplayStats();
 			UI.draw_bottom_commands = false;

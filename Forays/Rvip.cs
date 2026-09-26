@@ -54,6 +54,14 @@ namespace Forays{
 				return command;
 			}
 		}
+		//Autosave (web, RVIP W5): called while the game waits for a command, with no keys pending.
+		//Same state as the 'q' save (the player's turn event is still queued); the game goes on.
+		public static void Autosave(){
+			if(!Term.AtCommandPrompt || Term.KeyAvailable || Actor.player == null || Global.GAME_OVER) return;
+			if(System.IO.File.Exists("forays.sav")) System.IO.File.Delete("forays.sav");
+			Global.SaveGame(Actor.B,PhysicalObject.M,PhysicalObject.Q);
+			Global.SaveOptions(); //tips already shown, options
+		}
 		public static bool MonsterInView(Actor player){
 			return PhysicalObject.M.AllActors().Any(a => a != player && player.CanSee(a));
 		}
@@ -178,6 +186,90 @@ namespace Forays{
 					}
 				}
 			}
+		}
+		/* ---------- page state (RVIP step 5, W0/W4): built by the game, sent with each key wait ---------- */
+		public static bool full = true; //a whole-screen view (title, menus, help, character sheet): the page shows the whole screen
+		static int log_sent = 0; static string log_last = null;
+		static string J(string s){
+			var sb = new System.Text.StringBuilder("\"");
+			foreach(char c in s){
+				if(c == '"' || c == '\\') sb.Append('\\').Append(c);
+				else if(c == '\n') sb.Append("\\n");
+				else if(c == '\t') sb.Append("\\t");
+				else if(c < 32) sb.Append(' ');
+				else sb.Append(c);
+			}
+			return sb.Append('"').ToString();
+		}
+		static string Hex(Color c){ return J("#" + Term.RGB(c).ToString("x6")); }
+		public static string Info(){
+			try{ return BuildInfo(); }
+			catch(Exception e){ Console.WriteLine("Rvip.Info: " + e); return "{\"full\":" + (full? "true" : "false") + "}"; }
+		}
+		static string BuildInfo(){
+			var sb = new System.Text.StringBuilder("{");
+			sb.Append("\"full\":").Append(full? "true" : "false");
+			sb.Append(",\"atCmd\":").Append(Term.AtCommandPrompt? "true" : "false");
+			//panes of the 88x28 screen, defined here (the game's layout): [row, col, rows, cols]
+			sb.Append(",\"panes\":{\"map\":[3,21,25,67],\"side\":[0,0,28,21],\"msg\":[0,21,3,67]}");
+			//prompt line: the live message rows (not the dark-grey old ones)
+			var pr = new System.Text.StringBuilder();
+			for(int r=0;r<3;++r){
+				var line = new System.Text.StringBuilder(); bool live = false;
+				for(int c=Global.MAP_OFFSET_COLS;c<Global.SCREEN_W;++c){
+					colorchar ch = Screen.Char(r,c);
+					line.Append(ch.c < ' '? ' ' : ch.c);
+					if(ch.c != ' ' && ch.color != Color.DarkGray) live = true;
+				}
+				if(live) pr.Append(line.ToString().TrimEnd()).Append('\n');
+			}
+			sb.Append(",\"prompt\":").Append(J(pr.ToString().TrimEnd()));
+			Actor p = Actor.player;
+			bool in_game = p != null && Actor.B != null && p.row >= 0 && p.row < Global.ROWS && PhysicalObject.M != null && PhysicalObject.M.tile[p.row,p.col] != null;
+			if(in_game){
+				sb.Append(",\"hero\":[").Append(p.row).Append(',').Append(p.col).Append(']');
+				//message log: new lines, or the last line replaced (the game folds repeats as "(xN)")
+				List<string> log = Actor.B.GetMessageLog();
+				if(log.Count < log_sent){ log_sent = 0; log_last = null; sb.Append(",\"logReset\":true"); }
+				var add = new List<string>();
+				bool replace = false;
+				if(log.Count > 0 && log.Count == log_sent && log[log.Count-1] != log_last && log[log.Count-1].Trim() != ""){ replace = true; add.Add(log[log.Count-1]); }
+				for(int i=log_sent;i<log.Count;++i) if(log[i].Trim() != "") add.Add(log[i]);
+				if(add.Count > 0){
+					sb.Append(",\"log\":[").Append(string.Join(",",add.Select(J))).Append("],\"logReplace\":").Append(replace? "true" : "false");
+				}
+				log_sent = log.Count; log_last = log.Count > 0? log[log.Count-1] : null;
+				//inventory: letter, glyph, name, colour (the item's own)
+				sb.Append(",\"inv\":[");
+				for(int i=0;i<p.inv.Count;++i){
+					Item it = p.inv[i];
+					if(i > 0) sb.Append(',');
+					sb.Append('[').Append(J(((char)('a'+i)).ToString())).Append(',').Append(J(it.symbol.ToString())).Append(',').Append(J(it.GetName(true,Nym.NameElement.An,Nym.NameElement.Extra))).Append(',').Append(Hex(Colors.ResolveColor(it.color))).Append(']');
+				}
+				sb.Append(']');
+				//equipment
+				sb.Append(",\"equip\":[");
+				var eq = new List<string>();
+				eq.Add("[" + J("Weapon") + "," + J(p.EquippedWeapon.ToString()) + "," + Hex(p.EquippedWeapon.EnchantmentColor()) + "]");
+				foreach(Weapon w in p.weapons) if(w != p.EquippedWeapon) eq.Add("[" + J("") + "," + J(w.ToString()) + "," + Hex(Color.Gray) + "]");
+				eq.Add("[" + J("Armor") + "," + J(p.EquippedArmor.ToString()) + "," + Hex(p.EquippedArmor.EnchantmentColor()) + "]");
+				foreach(Armor a in p.armors) if(a != p.EquippedArmor) eq.Add("[" + J("") + "," + J(a.ToString()) + "," + Hex(Color.Gray) + "]");
+				foreach(MagicTrinketType m in p.magic_trinkets) eq.Add("[" + J("Trinket") + "," + J(MagicTrinket.Name(m)) + "," + Hex(Color.Yellow) + "]");
+				sb.Append(string.Join(",",eq)).Append(']');
+				//visible: monsters and items in view ("M<glyph><name>\t<colour>")
+				var vis = new System.Text.StringBuilder();
+				foreach(Actor a in PhysicalObject.M.AllActors()){
+					if(a == p || !p.CanSee(a)) continue;
+					vis.Append('M').Append(a.symbol).Append(a.GetName(false,Nym.NameElement.An)).Append('\t').Append("#" + Term.RGB(Colors.ResolveColor(a.color)).ToString("x6")).Append('\n');
+				}
+				for(int r=0;r<Global.ROWS;++r) for(int c=0;c<Global.COLS;++c){
+					Tile t = PhysicalObject.M.tile[r,c];
+					if(t == null || t.inv == null || !p.CanSee(t)) continue;
+					vis.Append('I').Append(t.inv.symbol).Append(t.inv.GetName(true,Nym.NameElement.An,Nym.NameElement.Extra)).Append('\t').Append("#" + Term.RGB(Colors.ResolveColor(t.inv.color)).ToString("x6")).Append('\n');
+				}
+				sb.Append(",\"vis\":").Append(J(vis.ToString()));
+			}
+			return sb.Append('}').ToString();
 		}
 	}
 }
