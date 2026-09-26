@@ -329,3 +329,32 @@ and its commit `e1775e7`. Material:
   unreachable in every build.
 
 Next: stage 9 (graveyard + leaderboard).
+
+### Stage 9 — graveyard + leaderboard (done)
+
+- **Beacon hook (game decides):** `Rvip.Beacon(depth, turn)` (Forays/Rvip.cs), called in
+  `Main.cs` right after the game loop ends (`if(!Global.SAVING)`, next to `recentcause`),
+  so death, win and "abandon character" all pass one place; save & quit sends nothing.
+  `ev` = `win` if `Global.BOSS_KILLED` (both win paths: last demon/circle in Map.cs,
+  boss "ripe old age" in Actor.cs), `quit` if `KILLED_BY == "gave up"`, else `death`.
+  Path to the page: `ITermBackend.Beacon` → `WebBackend` JSImport `beacon` → worker
+  `postMessage({t:'beacon'})` → `forays.js` → `RvipWM.report(q)` (fetch fallback).
+- **Fields:** `g=forays`, `ev`, `name` (`Actor.player_name`, the game asks for it),
+  `killer` (death only: `Rvip.killer` = `dmg.source` set in `Actor.TakeDamage`'s death
+  branch → monster `Name.Singular`; no monster source → `KILLED_BY` minus "killed by "
+  and a/an/the, e.g. "slamming into the wall"), `depth` (`M.Depth`), `score` = depth
+  (the game's high score list ranks by depth, W for a win), `turns` = `Q.turn / 100`.
+  **Missing:** `lvl` (Forays has no character level, only skills).
+- "Quit game immediately" (`q` → d) sends nothing: it exits without ending the run,
+  and the web autosave keeps the character resumable.
+- **Killer art:** `forays()` in `roguelikes-index/killers/make.py`: Actor.cs `Define()`
+  glyph from `ForaysImages/font8x16.png` (as the card), GL palette colour, 2x in 32 px;
+  80 PNGs live under `/roguelikes/killers/forays/`.
+- **Fix:** `web/coi-sw.js` rebuilt every response with its body; a 204 (the beacon's
+  answer) then throws → "Failed to fetch", report stayed in the outbox forever. Null-body
+  statuses now pass `null`.
+- **Tests:** native `SCRIPT=" aT~ qcy" TRACE=1` → `BEACON …ev=quit`; random seeds →
+  `ev=death&killer=goblin|lone%20wolf|…`; a temporary patch (case 2 sets BOSS_KILLED,
+  reverted) → `ev=win`. Live (browser pane): quit → `ev=quit&name=t&depth=1&score=1&turns=0&id=…&at=…`,
+  random keys → `ev=death&name=die&killer=goblin&depth=1&score=1&turns=30&id=…`, outbox
+  emptied after the SW fix (204). Test IDB `/forays/files` deleted from a plain page.
