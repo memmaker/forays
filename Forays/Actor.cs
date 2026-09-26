@@ -12731,6 +12731,7 @@ namespace Forays{
 					}
 					else{
 						Rvip.Sound("death"); //RVIP 6b
+						Rvip.killer = dmg.source; //RVIP 12: beacon killer
 						if(cause_of_death.Length > 0 && cause_of_death[0] == '*'){
 							Global.KILLED_BY = cause_of_death.Substring(1);
 						}

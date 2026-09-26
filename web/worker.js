@@ -39,6 +39,7 @@ const imports = {
 	initialFile(name) { return files[name]; },
 	quit() { postMessage({ t: 'quit' }); },
 	sound(name) { postMessage({ t: 'sound', name }); },
+	beacon(q) { postMessage({ t: 'beacon', q }); },
 };
 
 onmessage = async (e) => {

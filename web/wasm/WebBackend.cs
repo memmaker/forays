@@ -21,6 +21,7 @@ namespace Forays{
 		[JSImport("initialFile","forays")] internal static partial byte[] JsInitialFile(string name);
 		[JSImport("quit","forays")] internal static partial void JsQuit();
 		[JSImport("sound","forays")] internal static partial void JsSound(string name);
+		[JSImport("beacon","forays")] internal static partial void JsBeacon(string query);
 
 		public static readonly string[] Persistent = {"forays.sav","options.txt","highscore.txt","keys.txt","name.txt"};
 		Dictionary<string,long> stamps = new Dictionary<string,long>();
@@ -81,6 +82,7 @@ namespace Forays{
 		}
 		public void Sleep(int ms){ JsSleep(ms); }
 		public void Sound(string name){ JsSound(name); }
+		public void Beacon(string query){ JsBeacon(query); }
 		public void Present(int[] cells,int row,int col,bool visible,string info){
 			JsPresent(cells,row,col,visible,info);
 		}

@@ -52,6 +52,7 @@ namespace Forays{
 			return K(pool[rng.Next(pool.Length)]);
 		}
 		public void Sleep(int ms){}
+		public void Beacon(string query){ if(Environment.GetEnvironmentVariable("TRACE") != null) Console.WriteLine("BEACON " + query); }
 		public void Sound(string name){ if(Environment.GetEnvironmentVariable("TRACE") != null) Console.WriteLine("SOUND " + name); }
 		public void Present(int[] cells,int r,int c,bool vis,string info){ if(info != "") lastInfo = info; last = cells; ++presents; }
 		public void Quit(){ throw new QuitCalled(); }

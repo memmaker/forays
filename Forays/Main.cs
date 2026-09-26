@@ -875,6 +875,7 @@ namespace Forays{
 					recentname = Actor.player_name;
 					recentwin = Global.BOSS_KILLED? 'W' : '-';
 					recentcause = Global.KILLED_BY;
+					if(!Global.SAVING) Rvip.Beacon(game.M.Depth,game.Q.turn); //RVIP 12: finished run (death, win, gave up)
 					on_highscore_list = false;
 					if(!Global.SAVING && File.Exists("forays.sav")){ //RVIP: the web build autosaves; a finished run leaves no save
 						File.Delete("forays.sav");

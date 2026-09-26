@@ -221,6 +221,9 @@ function onMessage(e) {
 		if (!running) { running = true; status(''); $('game').hidden = false; wm.apply(); layout(); }
 		break;
 	case 'sound': if (L.sound) RVIPSound.play([m.name], 0.6); break;
+	case 'beacon': // RVIP 12: the game builds the report, the page only sends it
+		if (window.RvipWM && RvipWM.report) RvipWM.report(m.q); else fetch('/roguelikes/beacon?' + m.q, { keepalive: true, mode: 'no-cors' }).catch(function () {});
+		break;
 	case 'store': putFile(m.name, m.data); break;
 	case 'delete': delFile(m.name); break;
 	case 'quit': case 'exit': gameOver(); break;

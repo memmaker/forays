@@ -14,6 +14,7 @@ namespace Forays{
 		void Present(int[] cells,int cursor_row,int cursor_col,bool cursor_visible,string info); //info: JSON page state, "" = unchanged
 		void Quit(); //the game asked to exit; must not return
 		void Sound(string name); //RVIP 6b: a named sound effect
+		void Beacon(string query); //RVIP 12: report a finished run (graveyard/leaderboard)
 	}
 	public static class Term{
 		public static ITermBackend Backend;

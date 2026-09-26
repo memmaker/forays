@@ -64,6 +64,24 @@ namespace Forays{
 		}
 		//RVIP 6b: the game names its sounds; the page plays them (off by default).
 		public static void Sound(string name){ if(name != null && Term.Backend != null) Term.Backend.Sound(name); }
+		public static Actor killer = null; //RVIP 12: damage source of the player's death (Actor.TakeDamage)
+		//RVIP 12: one report per finished run (death, win, gave up; not save & quit). Score = depth, as the game's high score list.
+		public static void Beacon(int depth,int turn){
+			try{
+				string ev = Global.BOSS_KILLED? "win" : Global.KILLED_BY == "gave up"? "quit" : "death";
+				string q = "g=forays&ev=" + ev + "&name=" + Uri.EscapeDataString(Actor.player_name ?? "");
+				if(ev == "death"){
+					string k = killer != null && killer != Actor.player? killer.Name.Singular : Global.KILLED_BY;
+					if(k.StartsWith("killed by ")) k = k.Substring(10);
+					foreach(string a in new[]{"a ","an ","the "}) if(k.StartsWith(a)){ k = k.Substring(a.Length); break; }
+					q += "&killer=" + Uri.EscapeDataString(k);
+				}
+				q += "&depth=" + depth + "&score=" + depth + "&turns=" + turn / 100;
+				if(Term.Backend != null) Term.Backend.Beacon(q);
+			}
+			catch(Exception){}
+			killer = null;
+		}
 		public static bool MonsterInView(Actor player){
 			return PhysicalObject.M.AllActors().Any(a => a != player && player.CanSee(a));
 		}
