@@ -4,7 +4,7 @@
 set -e
 HERE=$(cd "$(dirname "$0")" && pwd)
 GAME="$HERE/../../Forays"
-DLL="$HERE/bin/Release/net8.0/ForaysNative.dll"
+DLL="$HERE/bin/Release/net10.0/ForaysNative.dll"
 [ -f "$DLL" ] || dotnet build -c Release "$HERE" >/dev/null
 first=${1:-1}; count=${2:-10}; keys=${3:-3000}
 fail=0

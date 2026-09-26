@@ -68,4 +68,60 @@ holds: explore, menus, colours, panes are decided in C#.
 
 ## RVIP progress
 
-(nothing yet — start with stage 1)
+### Stage 1 — build (done)
+
+- Case **O** (C#, own console layer; nearest: BOSS = screen buffer + key queue).
+  Branch `master`, remote `origin` (memmaker/forays). Upstream = history up to
+  `3ed1559` (0.8.4 + upstream's post-release refactors).
+- **Route:** .NET **browser-wasm** (Mono interpreter), SDK 10.0.112 (`apt
+  install dotnet-sdk-10.0`; 8.0 works too), no workload needed.
+  `web/toolchain.sh` has every command (dot.net install script is blocked in the
+  cloud, apt works). Build: `sh web/build.sh` → `web/dist` (6.4 MB, trimmed,
+  `TrimMode=full`). Project: `web/wasm/ForaysWeb.csproj` compiles
+  `Forays/*.cs` + `web/wasm/WebBackend.cs`, defines `CONSOLE;WEB`, embeds
+  `ForaysHelp/*.txt`, `options.txt`, `highscore.txt`. OpenTK is still
+  referenced (NuGet `OpenTK.Next`, managed types only; GL code never runs).
+- **Blocking input:** the runtime runs in a **module Web Worker**
+  (`web/worker.js`); keys go through a SharedArrayBuffer ring written by the
+  page, `waitKey` blocks in `Atomics.wait`. So the game loop stays synchronous
+  (no async rewrite). Needs cross-origin isolation: `web/coi-sw.js` (service
+  worker adding COOP/COEP, scope = game folder) makes plain static hosting work
+  (tested with `python3 -m http.server`); nginx could send the headers instead.
+- **Frontend file:** `Forays/Term.cs` replaces `System.Console`
+  (`Console.` → `Term.` in Screen/Input/Main, `Thread.Sleep` → `Term.Sleep`,
+  `Global.Quit` → `Term.Quit`). The game's own `Screen.memory` (88×28,
+  Forays colours) is the cell buffer; `Term.Present()` converts colours with
+  the game's `Colors.ConvertColor` (GL palette) and hands `(char, fg, bg)` per
+  cell to the backend at every key wait / sleep. Keys: browser `code`/`key`
+  → `ConsoleKeyInfo` in `Term.FromBrowser` (C#; printable chars through the
+  game's own `Input.GetChar` table, so any keyboard layout works).
+  `Term.AtCommandPrompt` exists for the W4 prompt line (not set yet).
+- **Files:** runtime MEMFS; `WebBackend.SyncFiles()` mirrors `forays.sav`,
+  `options.txt`, `highscore.txt`, `keys.txt`, `name.txt` to IndexedDB
+  database `/forays/files` (page `web/forays.js`) on every key wait; the page
+  hands them back at start. Save → reload → "Resume saved game" tested.
+- **Page:** `web/index.html` (BOSS template bar), `web/forays.js` (one canvas,
+  whole screen, stage 5 adds the windows), loads `rvip-wm.js` and
+  `rvip-sound.js` from `rvip/web/` (copied by build.sh).
+- **Tests:** `node web/test.mjs [--shot name] keys…` (Playwright 1.56.1 +
+  the image's Chromium, fresh profile, prints the screen via
+  `window.forays.text()`, `random:N:seed` = random keys in the browser,
+  `reload`). Screenshots in `web/shots/` (ignored by git).
+- **ASan substitute:** `web/native/` = same sources + `Headless.cs` backend with
+  random keys; `sh web/native/run-seeds.sh first count keys` runs seeds, each
+  followed by save → load in a new process. 12×3000 + 30×5000 keys + loads,
+  clean after the fixes. Fixes (separate `port:` commits): save/load broken
+  upstream (reader expected an unwritten block; names, item flavours and
+  "tried" never saved → crash on first redraw after load), character-dump file
+  name with `/` crashed, and the wasm-only `ArrayTypeMismatchException` in
+  `PosArray` (generic 2-D array store under the Mono interpreter, net8 and
+  net10) → PosArray keeps a 1-D array.
+- **Tiles:** 0 sprites. The graphical build (`Forays.csproj`, OpenTK) only
+  renders the same glyphs from font sheets (`ForaysImages/font*.png`, 11
+  fonts + logo), there is no tileset → **text mode** (no tiles/text switch).
+- Quirks: the game flushes pending keys before tips/"press any key" screens
+  (`Input.FlushInput`), so scripted tests need waits after screens that pop
+  tips. Upstream already has **explore on `x`** and travel commands (stage 2:
+  check `<`/`>`).
+
+Next: stage 2 (explore + stairs).

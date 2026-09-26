@@ -219,3 +219,5 @@ obj/
 web/dist/
 web/shots/
 node_modules/
+.pw-profile/
+web/node_modules/

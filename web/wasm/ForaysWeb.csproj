@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <!-- RVIP web build: .NET 8 browser-wasm (Mono interpreter), run inside a module Web Worker -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);CONSOLE;WEB</DefineConstants>
+    <NoWarn>$(NoWarn);CS0162;CS0168;CS0219;CS0414;CS0649;CS0169;CS0618;CS0108;CS0114;NU1701;CS8981;SYSLIB0011;CA1416</NoWarn>
+    <StartupObject>Forays.WebMain</StartupObject>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <WasmEnableThreads>false</WasmEnableThreads>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Forays/*.cs" />
+    <Compile Include="WebBackend.cs" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.0" />
+    <PackageReference Include="OpenTK.Next" Version="1.1.1616.8959" GeneratePathProperty="true" ExcludeAssets="all" />
+    <Reference Include="OpenTK"><HintPath>$(PkgOpenTK_Next)/lib/net20/OpenTK.dll</HintPath></Reference>
+    <EmbeddedResource Include="../../Forays/ForaysHelp/*.txt" LogicalName="help/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../Forays/options.txt" LogicalName="data/options.txt" />
+    <EmbeddedResource Include="../../Forays/highscore.txt" LogicalName="data/highscore.txt" />
+  </ItemGroup>
+</Project>
