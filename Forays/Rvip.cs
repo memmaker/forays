@@ -62,6 +62,8 @@ namespace Forays{
 			Global.SaveGame(Actor.B,PhysicalObject.M,PhysicalObject.Q);
 			Global.SaveOptions(); //tips already shown, options
 		}
+		//RVIP 6b: the game names its sounds; the page plays them (off by default).
+		public static void Sound(string name){ if(name != null && Term.Backend != null) Term.Backend.Sound(name); }
 		public static bool MonsterInView(Actor player){
 			return PhysicalObject.M.AllActors().Any(a => a != player && player.CanSee(a));
 		}

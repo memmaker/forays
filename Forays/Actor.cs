@@ -2114,7 +2114,7 @@ namespace Forays{
 							i.row = -1;
 							i.col = -1;
 							i.revealed_by_light = true;
-							B.Add("You pick up " + i.GetName(true,The,Extra) + ". ");
+							B.Add("You pick up " + i.GetName(true,The,Extra) + ". "); Rvip.Sound("pickup"); //RVIP 6b
 							GetItem(i);
 							Q1();
 						}
@@ -2132,7 +2132,7 @@ namespace Forays{
 								i.quantity -= space_left;
 								i.revealed_by_light = true;
 								newitem.revealed_by_light = true;
-								B.Add("You pick up " + newitem.GetName(true,The,Extra) + ", but have no room for the other " + i.quantity.ToString() + ". ");
+								B.Add("You pick up " + newitem.GetName(true,The,Extra) + ", but have no room for the other " + i.quantity.ToString() + ". "); Rvip.Sound("pickup"); //RVIP 6b
 								i.ignored = true;
 								GetItem(newitem);
 								Q1();
@@ -2902,7 +2902,7 @@ namespace Forays{
 							return;
 						}
 					}
-					B.Add("You walk down the stairs. ");
+					B.Add("You walk down the stairs. "); Rvip.Sound("stairs"); //RVIP 6b
 					B.Print(true);
 					if(M.Depth < 20){
 						M.GenerateLevel();
@@ -3224,7 +3224,7 @@ namespace Forays{
 							i.row = -1;
 							i.col = -1;
 							i.revealed_by_light = true;
-							B.Add("You pick up " + i.GetName(true,The,Extra) + ". ");
+							B.Add("You pick up " + i.GetName(true,The,Extra) + ". "); Rvip.Sound("pickup"); //RVIP 6b
 							GetItem(i);
 							Q1();
 						}
@@ -3235,7 +3235,7 @@ namespace Forays{
 							newitem.quantity = space_left;
 							i.quantity -= space_left;
 							newitem.revealed_by_light = true;
-							B.Add("You pick up " + newitem.GetName(true,The,Extra) + ", but have no room for the other " + i.quantity.ToString() + ". ");
+							B.Add("You pick up " + newitem.GetName(true,The,Extra) + ", but have no room for the other " + i.quantity.ToString() + ". "); Rvip.Sound("pickup"); //RVIP 6b
 							i.ignored = true;
 							GetItem(newitem);
 							Q1();
@@ -12349,6 +12349,7 @@ namespace Forays{
 			return TakeDamage(new Damage(dmgtype,damclass,major_damage,source,dmg),cause_of_death);
 		}
 		public bool TakeDamage(Damage dmg,string cause_of_death){ //returns true if still alive
+			if(dmg.amount > 0) Rvip.Sound(this == player? "hurt" : dmg.source == player? "hit" : null); //RVIP 6b
 			if(dmg.amount == 0){
 				return true;
 			}
@@ -12729,6 +12730,7 @@ namespace Forays{
 						}
 					}
 					else{
+						Rvip.Sound("death"); //RVIP 6b
 						if(cause_of_death.Length > 0 && cause_of_death[0] == '*'){
 							Global.KILLED_BY = cause_of_death.Substring(1);
 						}
@@ -13447,6 +13449,7 @@ namespace Forays{
 		}
 		public bool CastSpell(SpellType spell){ return CastSpell(spell,null); }
 		public bool CastSpell(SpellType spell,PhysicalObject obj){ //returns false if targeting is canceled.
+			if(this == player) Rvip.Sound("spell"); //RVIP 6b
 			if(StunnedThisTurn()){ //eventually this will be moved to the last possible second
 				return true; //returns true because turn was used up. 
 			}
@@ -14994,7 +14997,7 @@ namespace Forays{
 			List<string> learned = new List<string>();
 			skills[skill]++;
 			bool active_feat_learned = false;
-			B.Add("You feel a rush of power. ");
+			B.Add("You feel a rush of power. "); Rvip.Sound("levelup"); //RVIP 6b
 			B.Print(true);
 			ConsoleKeyInfo command;
 			bool gain_feat = false;

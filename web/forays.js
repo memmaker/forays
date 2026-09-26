@@ -186,9 +186,10 @@ function autoPx() {
 }
 function layout() { if (auto) px = autoPx(); dirty = true; }
 async function makeWM() {
-	try { const d = await getFile('web-layout.json'); if (d) { const s = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, font: s.font || 13, wm: s.wm }; } } catch (_) { }
+	try { const d = await getFile('web-layout.json'); if (d) { const s = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, font: s.font || 13, wm: s.wm, sound: !!s.sound }; } } catch (_) { }
 	if (L.px >= 8 && L.px <= 48) { px = L.px; auto = false; }
 	fonts();
+	$('btn-sound').classList.toggle('on', !!L.sound);
 	wm = RvipWM({
 		area: $('game'), menu: $('btn-layout'),
 		wins: [{ id: 'map', title: 'Map' }, { id: 'side', title: 'Character' }, { id: 'msg', title: 'Messages' },
@@ -199,7 +200,7 @@ async function makeWM() {
 		save: st => { L.wm = st; saveLayout(); },
 		layout: r => { rects = r; layout(); },
 		font: (id, d) => { if (id === 'side') { zoom(d); return; } L.font = Math.max(8, Math.min(28, L.font + d)); fonts(); saveLayout(); },
-		onReset: () => { auto = true; L.px = 0; L.font = 13; L.wm = wm.state(); fonts(); layout(); saveLayout(); }
+		onReset: () => { auto = true; L.px = 0; L.font = 13; L.wm = wm.state(); /* sound choice kept */ fonts(); layout(); saveLayout(); }
 	});
 	wm.apply();
 }
@@ -219,6 +220,7 @@ function onMessage(e) {
 		dirty = true;
 		if (!running) { running = true; status(''); $('game').hidden = false; wm.apply(); layout(); }
 		break;
+	case 'sound': if (L.sound) RVIPSound.play([m.name], 0.6); break;
 	case 'store': putFile(m.name, m.data); break;
 	case 'delete': delFile(m.name); break;
 	case 'quit': case 'exit': gameOver(); break;
@@ -256,6 +258,7 @@ function bar() {
 		await putFile('forays.sav', new Uint8Array(await f.arrayBuffer())); location.reload();
 	};
 	$('btn-help').onclick = openHelp;
+	$('btn-sound').onclick = () => { L.sound = !L.sound; $('btn-sound').classList.toggle('on', L.sound); saveLayout(); };
 	$('help-close').onclick = () => { $('help').hidden = true; };
 	document.querySelectorAll('#bar button').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
 }

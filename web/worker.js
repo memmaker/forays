@@ -38,6 +38,7 @@ const imports = {
 	initialFiles() { return Object.keys(files).join('\n'); },
 	initialFile(name) { return files[name]; },
 	quit() { postMessage({ t: 'quit' }); },
+	sound(name) { postMessage({ t: 'sound', name }); },
 };
 
 onmessage = async (e) => {

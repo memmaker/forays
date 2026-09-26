@@ -249,4 +249,29 @@ holds: explore, menus, colours, panes are decided in C#.
 - Not done: mouse (the game has MouseUI for its GL build; the page sends no
   mouse events), link preview (5b, needs the index card), beacon (stage 9).
 
-Next: stage 6 (docs + sound).
+### Stage 6 — docs + sound (done; Docs tree merge is for the Mac)
+
+- **Help button guide:** `web/make-help.py` → `dist/help.html` (build.sh),
+  same sections as BOSS's: about, keys to remember (help `?`, explore `x`,
+  Enter menu, inventory, stairs `>`, save `q`), essentials, complete key
+  list (parsed from the game's `ForaysHelp/help.txt`), saving (web), tips,
+  new player's guide, playing in the browser, About this version (upstream
+  Forays/ForaysIntoNorrendrin @ `3ed1559`, memmaker/forays compare view).
+  Weapon/armor claims checked against the game's own `Weapon.Description()`.
+- **Docs page:** `docs/web/forays-docs.html` = `make-help.py --page`
+  (standalone, same content). The Mac's `~/Desktop/Games/Roguelikes/Docs`
+  (build-docs.py GAMES entry + guides.py) is not in the cloud: **Mac side**
+  moves the ESSENTIALS/KEY_HINTS/TIPS/GUIDE blocks into build-docs.py /
+  guides.py and switches make-help.py to import them like BOSS's.
+- **Sound (6b):** Forays has no sounds; `web/make-sounds.py` synthesizes 7
+  short WAVs into `dist/sound/` at build time (no third-party assets). The
+  game names them (`Rvip.Sound` → `ITermBackend.Sound` → worker `sound` →
+  `RVIPSound.play`): `hit` (player damages a monster), `hurt`, `death`,
+  `pickup`, `stairs`, `spell`, `levelup` (hooks in `Actor.TakeDamage`,
+  death, "You walk down the stairs", the 4 pick-ups, `CastSpell`,
+  `IncreaseSkill`). Top-bar **Sound** toggle, **off by default**, saved in
+  the layout file (IndexedDB). Tested: toggled on → `hurt` played.
+  **No music** (none exists; not synthesized) — open.
+
+Next: stage 7 (publish: GitHub repo is already memmaker/forays; card, tree,
+deploy) — Mac side.

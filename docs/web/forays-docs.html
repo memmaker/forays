@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Forays into Norrendrin — guide</title><style>:root{--bg:#0b0b0d;--panel:#16161a;--line:#2b2b33;--text:#d8d8de;--dim:#8a8a96;--accent:#d9b24c}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:980px;margin:0 auto;padding:8px 24px 40px}kbd{display:inline-block;min-width:1.7em;padding:0 6px;text-align:center;font:600 12px/1.6 ui-monospace,Menlo,monospace;background:#22222a;border:1px solid #3a3a46;border-bottom-width:2px;border-radius:4px}a{color:var(--accent)}h1{color:var(--accent);font-size:22px}
+	#help .panel { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+		width: min(980px, calc(100vw - 32px)); height: calc(100vh - 64px); display: flex; flex-direction: column; }
+	#help .head { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+	#help .head h2 { margin: 0; font-size: 16px; color: var(--accent); flex: 1; }
+	main { overflow: auto; padding: 4px 24px 32px; outline: none; font-size: 14px; line-height: 1.6; }
+	main h2 { font-size: 19px; margin: 28px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--text); }
+	main h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin: 18px 0 8px; }
+	main p, main ul, main ol { max-width: 76ch; margin: 0 0 12px; }
+	main li { margin: 3px 0; }
+	main .toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; padding: 0; list-style: none; }
+	main .toc a { display: block; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; }
+	main .toc a:hover { border-color: var(--accent); }
+	main .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+	main .box { background: #1c1c22; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+	main .key { background: #221d10; border-color: #4a3d18; }
+	main dl { margin: 0; display: grid; grid-template-columns: minmax(5.5em, max-content) 1fr; gap: 6px 12px; align-items: baseline; }
+	main dd { margin: 0; }
+	main .all { columns: 3 240px; column-gap: 24px; }
+	main .all div { break-inside: avoid; display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px dashed var(--line); }
+	main .all kbd { flex: none; }
+	main details summary { cursor: pointer; color: var(--accent); margin: 8px 0; }
+	main code { font: 12px ui-monospace, Menlo, monospace; background: #22222a; padding: 0 4px; border-radius: 3px; }
+	main .or { color: var(--dim); font-size: 12px; margin: 0 3px; }
+	main .plus { color: var(--dim); margin: 0 2px; }
+</style></head><body><main><h1>Forays into Norrendrin</h1><p><a href="https://ruzzoli.de/roguelikes/forays/">Play in the browser</a></p>
+<p>Tactical fantasy roguelike: no classes, no experience — shrines, feats and five weapons you always carry.</p><ul class="toc"><li><a href="#h-about">About the game</a></li><li><a href="#h-keys">Keyboard controls</a></li><li><a href="#h-saving">Saving your game</a></li><li><a href="#h-tips">Tips</a></li><li><a href="#h-guide">New player&#x27;s guide</a></li><li><a href="#h-web">Playing in the browser</a></li><li><a href="#h-version">About this version</a></li></ul>
+<h2 id="h-about">About the game</h2><p><strong>Forays into Norrendrin</strong> (Derrick Creamer; version 0.8.4, 2015) is a
+streamlined fantasy roguelike about tactical combat. There are no classes and no
+experience points: you get stronger by finding the <em>shrines</em> on each
+level (combat, defense, magic, spirit, stealth), which raise a skill and let you
+pick feats. Every character carries the same five weapons (sword, mace,
+dagger, staff, bow) and three armors and switches between them; weapons pick up
+enchantments and armors get damaged on the way. Light matters: your torch
+shows you the dungeon and shows you to the monsters. The descent is one way,
+20 levels deep, and ends at the demons' pit.</p>
+<h2 id="h-keys">Keyboard controls</h2><div class="box key"><h3>The keys to remember</h3><dl><dt><kbd>?</kbd></dt><dd>In-game help: overview, skills, feats, spells, items, tips</dd><dt><kbd>x</kbd></dt><dd>Explore automatically until something happens</dd><dt><kbd>Enter</kbd></dt><dd>Menu of all commands</dd><dt><kbd>i</kbd></dt><dd>Inventory with a cursor: letter = use, Shift+letter = drop, Enter = all actions</dd><dt><kbd>&gt;</kbd></dt><dd>Take the stairs down (from anywhere: walks to the stairs you have seen)</dd><dt><kbd>q</kbd></dt><dd>Quit or save (the browser also saves by itself)</dd></dl></div><h3>Essential keys</h3><div class="grid"><div class="box"><h3>Moving</h3><dl><dt><kbd>1-9 / arrows / hjklyubn</kbd></dt><dd>Walk, attack by walking into a monster</dd><dt><kbd>5 / .</kbd></dt><dd>Wait a turn</dd><dt><kbd>x</kbd></dt><dd>Explore</dd><dt><kbd>X</kbd></dt><dd>Travel to a place</dd><dt><kbd>&gt;</kbd></dt><dd>Stairs down (walks there first)</dd><dt><kbd>w</kbd></dt><dd>Walk in a direction</dd></dl></div><div class="box"><h3>Fighting</h3><dl><dt><kbd>e</kbd></dt><dd>Equipment: switch weapon and armor</dd><dt><kbd>1-5</kbd></dt><dd>Switch weapon (top row)</dd><dt><kbd>8 9 0</kbd></dt><dd>Switch armor (top row)</dd><dt><kbd>s</kbd></dt><dd>Shoot the bow</dd><dt><kbd>z</kbd></dt><dd>Cast a spell</dd><dt><kbd>r</kbd></dt><dd>Rest (once per level)</dd></dl></div><div class="box"><h3>Items</h3><dl><dt><kbd>i</kbd></dt><dd>Inventory</dd><dt><kbd>a</kbd></dt><dd>Apply (use) an item</dd><dt><kbd>f</kbd></dt><dd>Fling an item</dd><dt><kbd>g</kbd></dt><dd>Pick up</dd><dt><kbd>d</kbd></dt><dd>Drop</dd><dt><kbd>\</kbd></dt><dd>Known item types</dd></dl></div><div class="box"><h3>Looking</h3><dl><dt><kbd>Tab</kbd></dt><dd>Look around</dd><dt><kbd>m</kbd></dt><dd>Dungeon map</dd><dt><kbd>p</kbd></dt><dd>Previous messages</dd><dt><kbd>c</kbd></dt><dd>Character sheet and feats</dd><dt><kbd>t</kbd></dt><dd>Torch on/off</dd></dl></div></div><details><summary>Complete key list (27 commands)</summary><div class="all"><div><kbd>Tab</kbd><span>Look around   (Tab again to cycle between targets)</span></div><div><kbd>r</kbd><span>Rest to recover health/mana/exhaustion &amp; repair equipment</span></div><div><kbd>t</kbd><span>Turn your torch on/off</span></div><div><kbd>z</kbd><span>Cast a spell</span></div><div><kbd>e</kbd><span>View and change equipment</span></div><div><kbd>s</kbd><span>Fire an arrow</span></div><div><kbd>i</kbd><span>View your inventory</span></div><div><kbd>a</kbd><span>Use a consumable item</span></div><div><kbd>f</kbd><span>Fling an item</span></div><div><kbd>g</kbd><span>Pick up an item</span></div><div><kbd>d</kbd><span>Drop an item</span></div><div><kbd>x</kbd><span>Explore automatically until something happens</span></div><div><kbd>X</kbd><span>Travel to a specific location</span></div><div><kbd>.</kbd><span>Wait one turn</span></div><div><kbd>&gt;</kbd><span>Take (or walk to) the stairs down</span></div><div><kbd>o</kbd><span>Operate terrain</span></div><div><kbd>w</kbd><span>Walk automatically in a direction</span></div><div><kbd>m</kbd><span>View dungeon map</span></div><div><kbd>p</kbd><span>View previous messages</span></div><div><kbd>\</kbd><span>View known items</span></div><div><kbd>c</kbd><span>View character info, including feats/other active abilities</span></div><div><kbd>q</kbd><span>Quit or save</span></div><div><kbd>=</kbd><span>Change options</span></div><div><kbd>?</kbd><span>View the help screen</span></div><div><kbd>-</kbd><span>View this command list</span></div><div><kbd>Enter</kbd><span>Menu of all commands</span></div><div><kbd>&lt;</kbd><span>There are no up stairs (says so)</span></div></div></details>
+<h2 id="h-saving">Saving your game</h2><ul>
+<li><strong>Saving is automatic.</strong> The game is stored in this browser (IndexedDB) while it waits for your command, every two minutes and when you switch tabs. Reloading the page and choosing <em>Resume saved game</em> continues from there.</li>
+<li><kbd>q</kbd> offers the game's own choices: save and return to the menu, save and quit, abandon the character.</li>
+<li>When your character dies or is abandoned, the save is deleted: death is final. High scores, options and your name stay.</li>
+<li><em>Export save</em> downloads <code>forays.sav</code>; <em>Import save</em> loads one; <em>New game</em> deletes the save in this browser.</li>
+<li>Private/incognito windows and "clear site data" delete the stored game. Export first if it matters.</li>
+</ul>
+<h2 id="h-tips">Tips</h2><ul>
+<li>Rest (<kbd>r</kbd>) once per level to heal fully and repair your equipment — use it after the big fight, not before.</li>
+<li>Find every shrine before you go down: the game warns you when one is left. Skills are the only way to grow.</li>
+<li>Switch weapons for the job: sword crits take half a foe's maximum health, the mace ignores armor and knocks back, the dagger always hits in darkness, the staff swaps places and trips, the bow hits from afar.</li>
+<li>Put your torch away (<kbd>t</kbd>) to sneak past sleeping monsters; take it out to fight things that hide in the dark.</li>
+<li>Unknown potions and scrolls are identified by using them; try them when you are healthy and alone.</li>
+<li>Terrain is a weapon: doors, corridors, fire, oil, webs and chasms change fights. Look around with <kbd>Tab</kbd>.</li>
+</ul>
+<h2 id="h-guide">New player&#x27;s guide</h2><h3>Your first minutes</h3><ol>
+<li>Start a game from the menu with <kbd>a</kbd>, type a name (or Enter for a random one).</li>
+<li>Read the tip boxes: they explain each thing the first time it happens.</li>
+<li>Press <kbd>x</kbd> to explore. It stops when something shows up; press it again to go on.</li>
+<li>Walk into monsters to attack. When hurt, finish the level's fights and rest with <kbd>r</kbd>.</li>
+<li>Step on a shrine (<code>_</code>) to raise a skill, then press <kbd>&gt;</kbd> to walk to the stairs and go down.</li>
+</ol><h3>Health and danger</h3><p>Health does not come back by itself: resting once per level, bandages and
+potions are all you have. Watch the status column: bleeding, poison, burning and
+stuns show there. Retreating into a corridor so only one monster reaches you is
+often the best move.</p><h3>Equipment</h3><p>You never find new weapons, only better versions of the ones you carry:
+enchantments (e.g. <em>of echoes</em>) and damage (weak point, dulled, stuck…) show on the
+equipment screen <kbd>e</kbd>; resting repairs it. Full plate protects most but
+clanks with every step.</p>
+<h2 id="h-web">Playing in the browser</h2><ul>
+<li><strong>Windows:</strong> Map, Character, Messages, Inventory and Visible (monsters and items in view) are separate windows; Equipment can be added from <em>Windows ▾</em>. Drag title bars to rearrange, drag the gaps to resize, hover a title for rename and text size. <em>One window</em> shows the original 88×28 screen.</li>
+<li>The newest message or question is shown in a box at the top left of the map; the full history is in Messages.</li>
+<li><strong>Keys:</strong> the numeric keypad, arrow keys or <kbd>h j k l y u b n</kbd> move you. Browsers keep some shortcuts (<kbd>Ctrl+W</kbd>, <kbd>Ctrl+T</kbd>, <kbd>F5</kbd>…) for themselves.</li>
+<li>No <code>[more]</code> stops: messages go on to the Messages window.</li>
+<li>Sound effects are off by default; switch them on with <em>Sound</em> in the top bar.</li>
+<li>The game runs in a Web Worker; the first visit installs a small service worker so it can (it reloads once).</li>
+<li>If the game ever crashes, a message appears at the top; reload the page to continue from the last autosave.</li>
+</ul>
+<h2 id="h-version">About this version</h2><ul><li>Based on <strong>Forays into Norrendrin 0.8.4</strong> by Derrick Creamer (MIT licence), upstream source <a href="https://github.com/Forays/ForaysIntoNorrendrin/tree/3ed15593a1e41aefd3694946490df3646c2278de">Forays/ForaysIntoNorrendrin @ 3ed1559</a> (0.8.4 plus the author's later clean-ups).</li><li>Our changes (web backend replacing the console, stairs walking, command menu, inventory cursor, window layout, autosave, save/load fixes): <a href="https://github.com/memmaker/forays">memmaker/forays</a>, <a href="https://github.com/memmaker/forays/compare/3ed1559...master">compare view</a>.</li><li>Built with .NET (browser-wasm); text mode, the game's own colours.</li></ul>
+</main></body></html>
+
