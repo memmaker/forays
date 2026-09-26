@@ -14,6 +14,5 @@ rm -rf "$OUT" && mkdir -p "$OUT"
 cp -r "$PUB/_framework" "$OUT/_framework"
 cp web/index.html web/forays.js web/worker.js web/coi-sw.js rvip/web/rvip-wm.js rvip/web/rvip-sound.js "$OUT/"
 python3 web/make-help.py > "$OUT/help.html"
-python3 web/make-help.py --page > docs/web/forays-docs.html
 python3 web/make-sounds.py "$OUT"
 du -sh "$OUT"
