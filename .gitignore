@@ -221,3 +221,4 @@ web/shots/
 node_modules/
 .pw-profile/
 web/node_modules/
+__pycache__/
