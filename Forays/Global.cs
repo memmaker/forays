@@ -342,7 +342,7 @@ namespace Forays{
 				b.Write(GetID(t));
 				b.Write(t.row);
 				b.Write(t.col);
-				//todo name
+				SaveName(t.Name,b); //RVIP: names were never saved (null after load)
 				b.Write(t.symbol);
 				b.Write((int)t.color);
 				b.Write(t.light_radius);
@@ -437,6 +437,15 @@ namespace Forays{
 			b.Write(UI.viewing_commands_idx);
 			b.Write(M.feat_gained_this_level);
 			b.Write(M.extra_danger);
+			b.Write(Item.unIDedFlavors.Count); //RVIP: flavour names and 'tried' were not saved (crash on load)
+			foreach(ConsumableType ct in Item.unIDedFlavors.Keys){
+				b.Write((int)ct);
+				SaveName(Item.unIDedFlavors[ct].Name,b);
+			}
+			b.Write(Item.tried.hashSet.Count);
+			foreach(ConsumableType ct in Item.tried){
+				b.Write((int)ct);
+			}
 			//b.Write(Item.unIDed_name.Count);
 			//foreach(ConsumableType ct in Item.unIDed_name.Keys){
 				//b.Write((int)ct);
@@ -491,7 +500,7 @@ namespace Forays{
 			b.Write(get_id(a));
 			b.Write(a.row);
 			b.Write(a.col);
-			//todo name
+			SaveName(a.Name,b);
 			b.Write(a.symbol);
 			b.Write((int)a.color);
 			b.Write((int)a.type);
@@ -564,11 +573,22 @@ namespace Forays{
 				b.Write((int)m);
 			}
 		}
+		public static void SaveName(Nym.Name n,BinaryWriter b){
+			b.Write(n != null);
+			if(n == null) return;
+			b.Write(n.Singular); b.Write(n.Plural); b.Write(n.usesAn); b.Write(n.uncountable); b.Write(n.noArticles); b.Write(n.secondPerson);
+		}
+		public static Nym.Name LoadName(BinaryReader b){
+			if(!b.ReadBoolean()) return null;
+			Nym.Name n = new Nym.Name(b.ReadString(),b.ReadString());
+			n.usesAn = b.ReadBoolean(); n.uncountable = b.ReadBoolean(); n.noArticles = b.ReadBoolean(); n.secondPerson = b.ReadBoolean();
+			return n;
+		}
 		private static void SaveItem(Item i,BinaryWriter b,IDMethod get_id){
 			b.Write(get_id(i));
 			b.Write(i.row);
 			b.Write(i.col);
-			//todo name
+			SaveName(i.Name,b);
 			b.Write(i.symbol);
 			b.Write((int)i.color);
 			b.Write(i.light_radius);

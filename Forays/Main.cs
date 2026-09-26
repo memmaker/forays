@@ -469,7 +469,7 @@ namespace Forays{
 									game.M.actor[a.row,a.col] = a;
 								}
 								Actor.tiebreakers.Add(a);
-										//todo name
+								a.Name = Global.LoadName(b);
 								a.symbol = b.ReadChar();
 								a.color = (Color)b.ReadInt32();
 								a.type = (ActorType)b.ReadInt32();
@@ -505,7 +505,7 @@ namespace Forays{
 										id.Add(item_id,item);
 										item.row = b.ReadInt32();
 										item.col = b.ReadInt32();
-												//todo name
+										item.Name = Global.LoadName(b);
 										item.symbol = b.ReadChar();
 										item.color = (Color)b.ReadInt32();
 										item.light_radius = b.ReadInt32();
@@ -612,7 +612,7 @@ namespace Forays{
 							t.row = b.ReadInt32();
 							t.col = b.ReadInt32();
 							game.M.tile[t.row,t.col] = t;
-									//todo name
+							t.Name = Global.LoadName(b);
 							t.symbol = b.ReadChar();
 							t.color = (Color)b.ReadInt32();
 							t.light_radius = b.ReadInt32();
@@ -637,7 +637,7 @@ namespace Forays{
 								id.Add(item_id,t.inv);
 								t.inv.row = b.ReadInt32();
 								t.inv.col = b.ReadInt32();
-										//todo name
+								t.inv.Name = Global.LoadName(b);
 								t.inv.symbol = b.ReadChar();
 								t.inv.color = (Color)b.ReadInt32();
 								t.inv.light_radius = b.ReadInt32();
@@ -685,7 +685,7 @@ namespace Forays{
 									id.Add(item_id,item);
 									item.row = b.ReadInt32();
 									item.col = b.ReadInt32();
-											//todo name
+									item.Name = Global.LoadName(b);
 									item.symbol = b.ReadChar();
 									item.color = (Color)b.ReadInt32();
 									item.light_radius = b.ReadInt32();
@@ -773,6 +773,18 @@ namespace Forays{
 						UI.viewing_commands_idx = b.ReadInt32();
 						game.M.feat_gained_this_level = b.ReadBoolean();
 						game.M.extra_danger = b.ReadInt32();
+						Item.unIDedFlavors = new Dictionary<ConsumableType,Nym.Named>(); //RVIP: see Global.SaveGame
+						Item.tried = new Hash<ConsumableType>();
+						Item.identified = new Hash<ConsumableType>();
+						int num_flavors = b.ReadInt32();
+						for(int i=0;i<num_flavors;++i){
+							ConsumableType ct = (ConsumableType)b.ReadInt32();
+							Item.unIDedFlavors[ct] = new Nym.Named(Global.LoadName(b),1,() => Item.tried[ct] ? " {tried}" : "");
+						}
+						int num_tried = b.ReadInt32();
+						for(int i=0;i<num_tried;++i){
+							Item.tried[(ConsumableType)b.ReadInt32()] = true;
+						}
 						//int num_unIDed = b.ReadInt32(); //RVIP: SaveGame no longer writes these (commented out there), so reading them broke every load
 						//for(int i=0;i<num_unIDed;++i){
 						//	ConsumableType ct = (ConsumableType)b.ReadInt32();
