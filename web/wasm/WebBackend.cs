@@ -37,6 +37,11 @@ namespace Forays{
 			}
 			string names = JsInitialFiles();
 			foreach(string name in names.Split('\n')){
+				if(name == "seed"){ //test runs: page URL ?seed=N
+					int seed;
+					if(int.TryParse(System.Text.Encoding.ASCII.GetString(JsInitialFile(name)),out seed)) Utilities.R.SetSeed(seed);
+					continue;
+				}
 				if(name == "" || Array.IndexOf(Persistent,name) < 0) continue;
 				File.WriteAllBytes(name,JsInitialFile(name));
 			}

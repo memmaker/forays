@@ -10,9 +10,13 @@ namespace Forays{
 	class QuitCalled : Exception {}
 	class Headless : ITermBackend{
 		Random rng; int left; bool save; Queue<ConsoleKeyInfo> script = new Queue<ConsoleKeyInfo>();
-		public int[] last; public int presents;
+		public int[] last, final; public int presents;
 		static readonly string pool = "abcdefghijklmnoprstuvwxyzABCDEFGHIJKLMNOPRSTUVWXYZ0123456789<>.,;:?/!@#$%^&*()-=+[]{}\\|'\"`~ \r\x1b\t";
-		public Headless(int seed,int keys,bool save_){ rng = new Random(seed); left = keys; save = save_; }
+		public Headless(int seed,int keys,bool save_){
+			rng = new Random(seed); left = keys; save = save_;
+			string sc = Environment.GetEnvironmentVariable("SCRIPT"); //scripted keys first: chars, ~ = Enter, ` = Escape
+			if(sc != null) foreach(char c in sc) script.Enqueue(K(c == '~' ? '\r' : c == '`' ? '\x1b' : c));
+		}
 		static ConsoleKeyInfo K(char ch){
 			ConsoleKeyInfo k;
 			if(ch == '\r'){ Term.FromBrowser("Enter","Enter",false,false,false,out k); return k; }
@@ -23,7 +27,8 @@ namespace Forays{
 		static readonly string[] specials = {"ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Numpad1","Numpad2","Numpad3","Numpad4","Numpad5","Numpad6","Numpad7","Numpad8","Numpad9","NumpadAdd","NumpadSubtract","Home","End","PageUp","PageDown"};
 		public bool KeyAvailable(){ return false; }
 		public ConsoleKeyInfo ReadKey(){
-			if(script.Count > 0) return script.Dequeue();
+			if(Environment.GetEnvironmentVariable("GOD") != null && Actor.player != null) Actor.player.attrs[AttrType.INVULNERABLE] = 1; //test only
+			if(script.Count > 0){ var kk = script.Dequeue(); if(Environment.GetEnvironmentVariable("TRACE") != null && last != null){ var d = Dump().Split('\n'); Console.WriteLine("KEY " + kk.KeyChar + " " + (Actor.player != null && Actor.player.row >= 0 ? Actor.player.tile().type.ToString() + " " + Rvip.stairs_walk + " " + Actor.player.path.Count : "") + " | " + d[0].Trim() + " | " + d[1].Trim() + " | " + d[2].Trim() + " | " + string.Join(" / ", Array.FindAll(d, l => l.Contains("y/n")))); } return kk; }
 			if(left <= 0){
 				if(save){
 					save = false;
@@ -32,6 +37,7 @@ namespace Forays{
 					script.Enqueue(K('d'));
 					return script.Dequeue();
 				}
+				if(final == null && last != null) final = (int[])last.Clone();
 				throw new KeysDone();
 			}
 			--left;
@@ -49,6 +55,7 @@ namespace Forays{
 		public void Present(int[] cells,int r,int c,bool vis){ last = cells; ++presents; }
 		public void Quit(){ throw new QuitCalled(); }
 		public string Dump(){
+			int[] last = final ?? this.last;
 			if(last == null) return "";
 			var sb = new System.Text.StringBuilder();
 			for(int r=0;r<Global.SCREEN_H;++r){ for(int c=0;c<Global.SCREEN_W;++c){ int ch = last[(r*Global.SCREEN_W+c)*3]; sb.Append(ch < 32 ? ' ' : (char)ch); } sb.Append('\n'); }

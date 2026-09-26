@@ -124,4 +124,37 @@ holds: explore, menus, colours, panes are decided in C#.
   tips. Upstream already has **explore on `x`** and travel commands (stage 2:
   check `<`/`>`).
 
-Next: stage 2 (explore + stairs).
+### Stage 2 — explore + stairs (done)
+
+- **Explore key `x`** is upstream's own (`Actor.FindAutoexplorePath`, the
+  `case 'x'` in `Actor.InputHuman`, continued by the `path` walker at the top
+  of `InputHuman`). It already meets RVIP step 2: path over known map,
+  one step per turn, stops on any message (`MessageBuffer.Add` →
+  `Interrupt`), on keys (`Input.KeyIsAvailable` in the walker) and before
+  dangerous steps (`NextStepIsDangerous`: known traps, fire, etc.); walks
+  through closed doors (opening them). Documented in the in-game help
+  (`ForaysHelp/help.txt`) and the bottom command bar.
+- **Stairs:** Forays has only stairs down (one-way). `>` on the stairs takes
+  them as before; elsewhere it walks to the stairs you have seen (upstream
+  path code, no more "Travel to the stairs? (y/n)" prompt) and takes them on
+  arrival. A disturbance (`Actor.Interrupt`, except the arrival message)
+  cancels; `>` again resumes. `<` prints "There are no up staircases in
+  Forays: the only way is down." Code: `Forays/Rvip.cs` (`Rvip.CommandKey`,
+  the main-loop hook = the command read in `Actor.InputHuman`,
+  `Rvip.stairs_walk`), `Actor.cs` `case '>'` and `Interrupt()`. Help text
+  updated.
+- **Tests used:** native scripted feed — `web/native` Headless reads
+  `SCRIPT` (keys; `~` Enter, `` ` `` Escape), `GOD=1` (test-only
+  invulnerability), `TRACE=1` (per key: tile, walk flag, top rows),
+  `DUMP=1` (final screen). Seed 6: `x`×200 then `>` walks to the stairs and
+  asks the game's own questions ("Really take the stairs without resting",
+  shrine warning), then "You walk down the stairs". Browser:
+  `node web/test.mjs --seed 6 …` gives the same level (page URL `?seed=N`
+  seeds `R`), explore runs there.
+- **"Known grid" test:** the explorer and the walk use the game's own
+  `tile.seen` / `GetPath(…, known only)`; unseen stairs → "You don't see any
+  stairs here."
+- Open: `[more]` stops exist ("You walk down the stairs. [more]") → RVIP 3d
+  auto_more, do in stage 3.
+
+Next: stage 3 (Enter menu + inventory).

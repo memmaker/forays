@@ -2390,7 +2390,7 @@ namespace Forays{
 				Help.TutorialTip(TutorialTopic.Attacking);
 				Cursor();
 			}
-			ConsoleKeyInfo command = Input.ReadKey();
+			ConsoleKeyInfo command = Rvip.CommandKey(this); //RVIP: stair walking, Enter menu
 			char ch = command.GetAction().GetCommandChar();
 			bool alt = false;
 			bool ctrl = false;
@@ -2960,6 +2960,9 @@ namespace Forays{
 								}
 							}
 						}
+						//RVIP: no "Travel to the stairs?" prompt; walk there and take them on arrival (Rvip.CommandKey)
+						Rvip.stairs_walk = true;
+/*RVIP
 						MouseUI.PushButtonMap(MouseMode.YesNoPrompt);
 						MouseUI.CreateButton(ConsoleKey.Y,false,2,Global.MAP_OFFSET_COLS + 22,1,2);
 						MouseUI.CreateButton(ConsoleKey.N,false,2,Global.MAP_OFFSET_COLS + 25,1,2);
@@ -2981,6 +2984,7 @@ namespace Forays{
 								return;
 							}
 						}
+*/
 						FindPath(stairs,-1,true);
 						if(path.Count > 0){
 							PlayerWalk(DirectionOf(path[0]));
@@ -14739,6 +14743,7 @@ namespace Forays{
 			}
 		}
 		public void Interrupt(){
+			if(this == player && tile().type != TileType.STAIRS) Rvip.stairs_walk = false; //RVIP: a disturbance cancels the stair walk (arriving does not)
 			if(HasAttr(AttrType.RESTING)){
 				attrs[AttrType.RESTING] = 0; //don't reset it if it's -1
 			}

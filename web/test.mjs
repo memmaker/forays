@@ -15,11 +15,12 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
-let shot = null, profile = null;
+let shot = null, profile = null, query = '';
 while (args[0] && args[0].startsWith('--')) {
 	const a = args.shift();
 	if (a === '--shot') shot = args.shift();
 	if (a === '--keep') profile = join(here, '..', '.pw-profile');
+	if (a === '--seed') query = '?seed=' + args.shift();
 }
 const port = 8000 + Math.floor(Math.random() * 1000);
 const srv = spawn('python3', ['-m', 'http.server', String(port), '-d', join(here, 'dist')], { stdio: 'ignore' });
@@ -35,7 +36,7 @@ page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 page.on('dialog', d => d.accept());
 page.on('response', r => { if (r.status() >= 400) errors.push('HTTP ' + r.status() + ' ' + r.url()); });
 async function boot() {
-	await page.goto(`http://localhost:${port}/`);
+	await page.goto(`http://localhost:${port}/${query}`);
 	await page.waitForFunction(() => window.forays && window.forays.running, null, { timeout: 180000 });
 	await page.waitForTimeout(300);
 }

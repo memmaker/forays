@@ -6,10 +6,11 @@ set -e
 cd "$(dirname "$0")/.."
 OUT=web/dist
 PUB=web/wasm/bin/Release/net10.0/publish/wwwroot
-rm -rf "$OUT" "$PUB/.." && mkdir -p "$OUT"
+rm -rf "$OUT" "$(dirname "$PUB")"
 dotnet publish web/wasm/ForaysWeb.csproj -c Release -nologo -v q | grep -v "^$" || true
 [ -f "$PUB/_framework/dotnet.js" ] || { echo "publish failed"; exit 1; }
-cp -r "$PUB/_framework" "$OUT/"
+rm -rf "$OUT" && mkdir -p "$OUT"
+cp -r "$PUB/_framework" "$OUT/_framework"
 cp web/index.html web/forays.js web/worker.js web/coi-sw.js rvip/web/rvip-wm.js rvip/web/rvip-sound.js "$OUT/"
 [ -f web/make-help.py ] && python3 web/make-help.py > "$OUT/help.html" || true
 du -sh "$OUT"

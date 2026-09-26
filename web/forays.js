@@ -191,6 +191,8 @@ async function main() {
 	if (!await isolate()) { status('This browser cannot run the game here (no cross-origin isolation / SharedArrayBuffer).', true); return; }
 	db = await openDB();
 	const files = await allFiles();
+	const seed = new URLSearchParams(location.search).get('seed');
+	if (seed) files.seed = new TextEncoder().encode(seed);
 	ring = new Int32Array(new SharedArrayBuffer(4 * (2 + NSLOT * SLOT)));
 	worker = new Worker('worker.js', { type: 'module' });
 	worker.onmessage = onMessage;
