@@ -773,12 +773,12 @@ namespace Forays{
 						UI.viewing_commands_idx = b.ReadInt32();
 						game.M.feat_gained_this_level = b.ReadBoolean();
 						game.M.extra_danger = b.ReadInt32();
-						int num_unIDed = b.ReadInt32();
-						for(int i=0;i<num_unIDed;++i){
-							ConsumableType ct = (ConsumableType)b.ReadInt32();
-							string s = b.ReadString();
-							//Item.unIDed_name[ct] = s; //todo broke loading here
-						}
+						//int num_unIDed = b.ReadInt32(); //RVIP: SaveGame no longer writes these (commented out there), so reading them broke every load
+						//for(int i=0;i<num_unIDed;++i){
+						//	ConsumableType ct = (ConsumableType)b.ReadInt32();
+						//	string s = b.ReadString();
+						//	//Item.unIDed_name[ct] = s; //todo broke loading here
+						//}
 						int num_IDed = b.ReadInt32();
 						for(int i=0;i<num_IDed;++i){
 							ConsumableType ct = (ConsumableType)b.ReadInt32();
