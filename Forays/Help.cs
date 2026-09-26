@@ -347,7 +347,7 @@ namespace Forays{
 				int x_offset = (boxwidth - frames[i][0].Length()) / 2;
 				Screen.WriteList(y+y_offset,x+x_offset,frames[i]);
 				Screen.GLUpdate();
-				Thread.Sleep(20);
+				Term.Sleep(20);
 			}
 			foreach(colorstring s in box){
 				Screen.WriteString(y,x,s);
@@ -356,7 +356,7 @@ namespace Forays{
 			bool mouse_movement = MouseUI.IgnoreMouseMovement;
 			MouseUI.IgnoreMouseMovement = false;
 			Screen.GLUpdate();
-			Thread.Sleep(500);
+			Term.Sleep(500);
 			Input.FlushInput();
 			if(!Actor.player.HasAttr(AttrType.RESTING)){
 				Actor.player.Interrupt();

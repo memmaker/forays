@@ -693,7 +693,7 @@ namespace Forays{
 											current_row = t2.row;
 											current_col = t2.col;
 											Screen.GLUpdate();
-											Thread.Sleep(20);
+											Term.Sleep(20);
 										}
 									}
 									//M.Draw();

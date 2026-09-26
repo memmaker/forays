@@ -587,7 +587,7 @@ namespace Forays{
 				Screen.SetCursorPosition(0,0);
 				Screen.CursorVisible = true;
 			}
-			Environment.Exit(0);
+			Term.Quit();
 		}
 	}
 	public static class Extensions{

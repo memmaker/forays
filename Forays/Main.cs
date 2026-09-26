@@ -44,7 +44,7 @@ namespace Forays{
 		public MessageBuffer B;
 		public Actor player;
 
-		static void Main(string[] args){
+		public static void Main(string[] args){
 #if CONSOLE
             Screen.GLMode = false;
 #endif
@@ -54,6 +54,9 @@ namespace Forays{
 					Global.LINUX = true;
 				}
 			}
+#if CONSOLE
+			Global.LINUX = false; //RVIP: output goes to Term (web backend), no terminal quirks
+#endif
 			if(args != null && args.Length > 0){
 				if(args[0] == "-c" || args[0] == "--console"){
 					Screen.GLMode = false;
@@ -66,30 +69,30 @@ namespace Forays{
 				if(Global.LINUX){
 					Screen.CursorVisible = false;
 					Screen.SetCursorPosition(0,0); //todo: this should still work fine but it's worth a verification.
-					if(Console.BufferWidth < Global.SCREEN_W || Console.BufferHeight < Global.SCREEN_H){
-						Console.Write("Please resize your terminal to {0}x{1}, then press any key.",Global.SCREEN_W,Global.SCREEN_H);
+					if(Term.BufferWidth < Global.SCREEN_W || Term.BufferHeight < Global.SCREEN_H){
+						Term.Write("Please resize your terminal to {0}x{1}, then press any key.",Global.SCREEN_W,Global.SCREEN_H);
 						Screen.SetCursorPosition(0,1);
-						Console.Write("         Current dimensions are {0}x{1}.".PadRight(57),Console.BufferWidth,Console.BufferHeight);
+						Term.Write("         Current dimensions are {0}x{1}.".PadRight(57),Term.BufferWidth,Term.BufferHeight);
 						Input.ReadKey(false);
 						Screen.SetCursorPosition(0,0);
-						if(Console.BufferWidth < Global.SCREEN_W || Console.BufferHeight < Global.SCREEN_H){
+						if(Term.BufferWidth < Global.SCREEN_W || Term.BufferHeight < Global.SCREEN_H){
 							Screen.CursorVisible = true;
 							Environment.Exit(0);
 						}
 					}
 					Screen.Blank();
-					Console.TreatControlCAsInput = true;
+					Term.TreatControlCAsInput = true;
 				}
 				else{
-					if(Type.GetType("Mono.Runtime") != null){ // If you try to resize the Windows Command Prompt using Mono, it crashes, so just switch
+					if(Term.Backend == null && Type.GetType("Mono.Runtime") != null){ //RVIP: the web runtime is Mono // If you try to resize the Windows Command Prompt using Mono, it crashes, so just switch
 						Screen.GLMode = true; // back to GL mode in that case. (Fortunately, nobody uses Mono on Windows unless they're compiling a project in MD/XS.)
 					}
 					else{
 						Screen.CursorVisible = false;
-						Console.Title = "Forays into Norrendrin";
-						Console.BufferHeight = Global.SCREEN_H;
-						Console.SetWindowSize(Global.SCREEN_W,Global.SCREEN_H);
-						Console.TreatControlCAsInput = true;
+						Term.Title = "Forays into Norrendrin";
+						Term.BufferHeight = Global.SCREEN_H;
+						Term.SetWindowSize(Global.SCREEN_W,Global.SCREEN_H);
+						Term.TreatControlCAsInput = true;
 					}
 				}
 			}

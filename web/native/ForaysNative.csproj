@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <DefineConstants>$(DefineConstants);CONSOLE</DefineConstants>
+    <NoWarn>$(NoWarn);CS0162;CS0168;CS0219;CS0414;CS0649;CS0169;CS0618;CS0108;CS0114;NU1701;CS8981;SYSLIB0011</NoWarn>
+    <AssetTargetFallback>net20;net40;net461</AssetTargetFallback>
+    <StartupObject>Forays.HeadlessMain</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Forays/*.cs" />
+    <Compile Include="Headless.cs" />
+    <PackageReference Include="OpenTK.Next" Version="1.1.1616.8959" GeneratePathProperty="true" ExcludeAssets="all" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+    <Reference Include="OpenTK"><HintPath>$(PkgOpenTK_Next)/lib/net20/OpenTK.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

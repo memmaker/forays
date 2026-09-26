@@ -316,7 +316,7 @@ namespace Forays{
 				if(GLMode){
 					return cursor_visible;
 				}
-				return Console.CursorVisible;
+				return Term.CursorVisible;
 			}
 			set{
 				if(GLMode){
@@ -326,7 +326,7 @@ namespace Forays{
 					}
 				}
 				else{
-					Console.CursorVisible = value;
+					Term.CursorVisible = value;
 				}
 			}
 		}
@@ -335,7 +335,7 @@ namespace Forays{
 				if(GLMode){
 					return cursor_top;
 				}
-				return Console.CursorTop;
+				return Term.CursorTop;
 			}
 			set{
 				if(GLMode){
@@ -345,7 +345,7 @@ namespace Forays{
 					}
 				}
 				else{
-					Console.CursorTop = value;
+					Term.CursorTop = value;
 				}
 			}
 		}
@@ -354,7 +354,7 @@ namespace Forays{
 				if(GLMode){
 					return cursor_left;
 				}
-				return Console.CursorLeft;
+				return Term.CursorLeft;
 			}
 			set{
 				if(GLMode){
@@ -364,7 +364,7 @@ namespace Forays{
 					}
 				}
 				else{
-					Console.CursorLeft = value;
+					Term.CursorLeft = value;
 				}
 			}
 		}
@@ -377,43 +377,43 @@ namespace Forays{
 				}
 			}
 			else{
-				Console.SetCursorPosition(left,top);
+				Term.SetCursorPosition(left,top);
 			}
 		}
 		public static ConsoleColor ForegroundColor{
 			get{
 				if(Global.LINUX && terminal_bold){
-					return Console.ForegroundColor+8;
+					return Term.ForegroundColor+8;
 				}
-				return Console.ForegroundColor;
+				return Term.ForegroundColor;
 			}
 			set{
 				if(Global.LINUX && (int)value >= 8){
-					Console.ForegroundColor = value - 8;
+					Term.ForegroundColor = value - 8;
 					if(!terminal_bold){
 						terminal_bold = true;
-						Console.Write(bold_on);
+						Term.Write(bold_on);
 					}
 				}
 				else{
 					if(Global.LINUX && terminal_bold){
-						Console.Write(bold_off);
+						Term.Write(bold_off);
 						terminal_bold = false;
 					}
-					Console.ForegroundColor = value;
+					Term.ForegroundColor = value;
 				}
 			}
 		}
 		public static ConsoleColor BackgroundColor{
 			get{
-				return Console.BackgroundColor;
+				return Term.BackgroundColor;
 			}
 			set{
 				if(Global.LINUX && (int)value >= 8){
-					Console.BackgroundColor = value - 8;
+					Term.BackgroundColor = value - 8;
 				}
 				else{
-					Console.BackgroundColor = value;
+					Term.BackgroundColor = value;
 				}
 			}
 		}
@@ -438,8 +438,8 @@ namespace Forays{
 				}
 			}
 			if(!GLMode){
-				BackgroundColor = Console.BackgroundColor;
-				ForegroundColor = Console.ForegroundColor;
+				BackgroundColor = Term.BackgroundColor;
+				ForegroundColor = Term.ForegroundColor;
 			}
 		}
 		public static colorchar BlankChar(){ return new colorchar(Color.Black,' '); }
@@ -609,11 +609,11 @@ namespace Forays{
 							ForegroundColor = co;
 						}
 						co = Colors.GetColor(ch.bgcolor);
-						if(co != Console.BackgroundColor || Global.LINUX){//voodoo here. not sure why this is needed. (possible Mono bug)
+						if(co != Term.BackgroundColor || Global.LINUX){//voodoo here. not sure why this is needed. (possible Mono bug)
 							BackgroundColor = co;
 						}
-						Console.SetCursorPosition(c,r);
-						Console.Write(ch.c);
+						Term.SetCursorPosition(c,r);
+						Term.Write(ch.c);
 					}
 				}
 			}
@@ -638,11 +638,11 @@ namespace Forays{
 									ForegroundColor = co;
 								}
 								co = Colors.GetColor(ch.bgcolor);
-								if(co != Console.BackgroundColor || Global.LINUX){//voodoo here. not sure why this is needed. (possible Mono bug)
+								if(co != Term.BackgroundColor || Global.LINUX){//voodoo here. not sure why this is needed. (possible Mono bug)
 									BackgroundColor = co;
 								}
-								Console.SetCursorPosition(c+j,r+i);
-								Console.Write(ch.c);
+								Term.SetCursorPosition(c+j,r+i);
+								Term.Write(ch.c);
 							}
 						}
 						else{
@@ -711,8 +711,8 @@ namespace Forays{
 						}
 					}
 					else{
-						Console.SetCursorPosition(c,r);
-						Console.Write(s.s);
+						Term.SetCursorPosition(c,r);
+						Term.Write(s.s);
 					}
 				}
 				if(MouseUI.AutomaticButtonsFromStrings && GLMode){
@@ -846,8 +846,8 @@ namespace Forays{
 						++i;
 					}
 					if(changed && !GLMode){
-						Console.SetCursorPosition(pos,r);
-						Console.Write(s.s);
+						Term.SetCursorPosition(pos,r);
+						Term.Write(s.s);
 					}
 					pos += s.s.Length;
 				}
@@ -1030,8 +1030,8 @@ namespace Forays{
 						}
 					}
 					else{
-						Console.SetCursorPosition(c,r);
-						Console.Write(s.s);
+						Term.SetCursorPosition(c,r);
+						Term.Write(s.s);
 					}
 				}
 				if(MouseUI.AutomaticButtonsFromStrings && GLMode){
@@ -1106,8 +1106,8 @@ namespace Forays{
 						++i;
 					}
 					if(changed && !GLMode){
-						Console.SetCursorPosition(cpos,r);
-						Console.Write(s.s);
+						Term.SetCursorPosition(cpos,r);
+						Term.Write(s.s);
 					}
 					cpos += s.s.Length;
 				}
@@ -1216,8 +1216,8 @@ namespace Forays{
 						}
 					}
 					else{
-						Console.SetCursorPosition(c,r);
-						Console.Write(s.s);
+						Term.SetCursorPosition(c,r);
+						Term.Write(s.s);
 					}
 				}
 				if(MouseUI.AutomaticButtonsFromStrings && GLMode){
@@ -1285,15 +1285,15 @@ namespace Forays{
 			colorchar prev = memory[r,c];
 			WriteChar(r,c,ch);
 			Screen.GLUpdate();
-			Thread.Sleep(duration);
+			Term.Sleep(duration);
 			WriteChar(r,c,prev);
 		}
 		/*public static void AnimateCellNonBlocking(int r,int c,colorchar ch,int duration){
 			colorchar prev = memory[r,c]; //experimental animation for realtime input. seems to work decently so far.
 			WriteChar(r,c,ch);
 			for(int i=0;i<duration;i+=5){
-				Thread.Sleep(5);
-				if(Console.KeyAvailable){
+				Term.Sleep(5);
+				if(Term.KeyAvailable){
 					WriteChar(r,c,prev);
 					return;
 				}
@@ -1314,7 +1314,7 @@ namespace Forays{
 				++idx;
 			}
 			Screen.GLUpdate();
-			Thread.Sleep(duration);
+			Term.Sleep(duration);
 			idx = 0;
 			foreach(pos p in cells){
 				WriteMapChar(p.row,p.col,prev[idx]);
@@ -1331,7 +1331,7 @@ namespace Forays{
 				++idx;
 			}
 			Screen.GLUpdate();
-			Thread.Sleep(duration);
+			Term.Sleep(duration);
 			idx = 0;
 			foreach(pos p in cells){
 				WriteMapChar(p.row,p.col,prev[idx]);
@@ -1403,7 +1403,7 @@ namespace Forays{
 						WriteMapChar(t.row,t.col,ch);
 					}
 					Screen.GLUpdate();
-					Thread.Sleep(duration);
+					Term.Sleep(duration);
 				}
 			}
 			else{
@@ -1411,7 +1411,7 @@ namespace Forays{
 					WriteMapChar(t.row,t.col,ch);
 				}
 				Screen.GLUpdate();
-				Thread.Sleep(duration);
+				Term.Sleep(duration);
 			}
 			for(int i=0;i<=radius*2;++i){
 				for(int j=0;j<=radius*2;++j){
@@ -1453,7 +1453,7 @@ namespace Forays{
 				memlist.Add(MapChar(t.row,t.col));
 				WriteMapChar(t.row,t.col,ch);
 				Screen.GLUpdate();
-				Thread.Sleep(duration);
+				Term.Sleep(duration);
 			}
 			int i = 0;
 			foreach(Tile t in list){
@@ -1470,7 +1470,7 @@ namespace Forays{
 				memlist.Add(MapChar(t.row,t.col));
 				WriteMapChar(t.row,t.col,ch);
 				Screen.GLUpdate();
-				Thread.Sleep(duration);
+				Term.Sleep(duration);
 			}
 			int i = 0;
 			foreach(Tile t in list){

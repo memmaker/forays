@@ -28,7 +28,7 @@ namespace Forays{
 			if(Screen.GLMode){
 				return KeyPressed;
 			}
-			return Console.KeyAvailable;
+			return Term.KeyAvailable;
 		}
 		public static void FlushInput(){
 			if(Screen.GLMode){
@@ -36,8 +36,8 @@ namespace Forays{
 				KeyPressed = false;
 			}
 			else{
-				while(Console.KeyAvailable){
-					Console.ReadKey(true);
+				while(Term.KeyAvailable){
+					Term.ReadKey(true);
 				}
 			}
 		}
@@ -275,7 +275,7 @@ namespace Forays{
 		public static ConsoleKeyInfo ReadKey(bool showCursor = true){
 			if(showCursor) Screen.CursorVisible = true;
 			if(!Screen.GLMode){
-				ConsoleKeyInfo raw = Console.ReadKey(true);
+				ConsoleKeyInfo raw = Term.ReadKey(true);
 				Screen.CursorVisible = false;
 				bool shift = (raw.Modifiers & ConsoleModifiers.Shift) == ConsoleModifiers.Shift;
 				ConsoleKeyInfo k = new ConsoleKeyInfo(GetChar(raw.Key,shift),raw.Key,shift,(raw.Modifiers & ConsoleModifiers.Alt) == ConsoleModifiers.Alt,(raw.Modifiers & ConsoleModifiers.Control) == ConsoleModifiers.Control);
@@ -302,7 +302,7 @@ namespace Forays{
 						}
 					}
 				}
-				Thread.Sleep(10);
+				Term.Sleep(10);
 				if(KeyPressed){
 					Screen.CursorVisible = false;
 					KeyPressed = false;

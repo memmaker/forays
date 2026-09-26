@@ -862,7 +862,7 @@ namespace Forays{
 						memlist.Add(Screen.MapChar(t.row,t.col));
 						Screen.WriteMapChar(t.row,t.col,ch);
 						Screen.GLUpdate();
-						Thread.Sleep(35);
+						Term.Sleep(35);
 						last_wall = t;
 						t = t.TileInDirection(dir);
 					}
@@ -877,7 +877,7 @@ namespace Forays{
 						foreach(Tile tile in tiles){
 							Screen.WriteMapChar(tile.row,tile.col,memlist[idx++]);
 							Screen.GLUpdate();
-							Thread.Sleep(35);
+							Term.Sleep(35);
 						}
 						Input.FlushInput();
 						B.Add(user.GetName(false,The,Verb("travel")) + " through the passage. ",user,t);
@@ -906,7 +906,7 @@ namespace Forays{
 							foreach(Tile tile in tiles){
 								Screen.WriteMapChar(tile.row,tile.col,memlist[idx++]);
 								Screen.GLUpdate();
-								Thread.Sleep(35);
+								Term.Sleep(35);
 							}
 							Input.FlushInput();
 							B.Add(user.GetName(false,The,Verb("travel")) + " through the passage. ",user,destination);
@@ -994,7 +994,7 @@ namespace Forays{
 							if(user.DistanceFrom(t) > max_dist){
 								max_dist = user.DistanceFrom(t);
 								Screen.GLUpdate();
-								Thread.Sleep(10);
+								Term.Sleep(10);
 								while(last_tiles.Count > 0){
 									Tile t2 = last_tiles.RemoveRandom();
 									Screen.WriteMapChar(t2.row,t2.col,M.last_seen[t2.row,t2.col]);
@@ -1266,7 +1266,7 @@ namespace Forays{
 						}
 					}
 					Screen.GLUpdate();
-					Thread.Sleep(10);
+					Term.Sleep(10);
 				}
 				List<Actor> actors = new List<Actor>();
 				for(int dist=0;dist<=12;++dist){
@@ -1356,7 +1356,7 @@ namespace Forays{
 						}
 					}
 					Screen.GLUpdate();
-					Thread.Sleep(5);
+					Term.Sleep(5);
 				}
 				int actors_affected = 0;
 				string name_is = "";
@@ -1476,7 +1476,7 @@ namespace Forays{
 							if(t.DistanceFrom(t2) > max_dist){
 								max_dist = t.DistanceFrom(t2);
 								Screen.GLUpdate(); //todo: stalagmites - if I add them to caves, they should no longer always vanish. check for an event, maybe?
-								Thread.Sleep(50);
+								Term.Sleep(50);
 							}
 						}
 					}
@@ -1836,7 +1836,7 @@ namespace Forays{
 								if(t.seen){
 									Screen.WriteMapChar(t.row,t.col,';',Color.White);
 									Screen.GLUpdate();
-									Thread.Sleep(15);
+									Term.Sleep(15);
 								}
 							}
 						}

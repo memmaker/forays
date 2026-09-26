@@ -2073,13 +2073,13 @@ namespace Forays{
 			Cursor();
 			if(HasAttr(AttrType.PARALYZED,AttrType.ASLEEP)){
 				if(HasAttr(AttrType.ASLEEP)){
-					Thread.Sleep(25);
+					Term.Sleep(25);
 				}
 				Q1();
 				return;
 			}
 			if(HasAttr(AttrType.ENRAGED) && !HasAttr(AttrType.FROZEN)){
-				Thread.Sleep(100);
+				Term.Sleep(100);
 				EnragedMove();
 				return;
 			}
@@ -5178,7 +5178,7 @@ namespace Forays{
 							if(prev[idx] != null){
 								Screen.WriteMapChar(prev[idx].row,prev[idx].col,Screen.BlankChar());
 							}
-							Thread.Sleep(10);
+							Term.Sleep(10);
 						}*/
 						foreach(Actor a in M.AllActors()){
 							if(a != this){
@@ -8899,7 +8899,7 @@ namespace Forays{
 							}
 							Screen.WriteMapChar(t.row,t.col,cch);
 							Screen.GLUpdate();
-							Thread.Sleep(15);
+							Term.Sleep(15);
 						}
 						foreach(Actor a in targets){
 							Attack(0,a,true);
@@ -10939,7 +10939,7 @@ namespace Forays{
 					a.Move(dodge_tile.row,dodge_tile.col);
 					if(a != player && DistanceFrom(dodge_tile) > 1){
 						M.Draw();
-						Thread.Sleep(40);
+						Term.Sleep(40);
 					}
 					if(!attack_is_part_of_another_action){
 						Q.Add(new Event(this,info.cost));
@@ -14005,7 +14005,7 @@ namespace Forays{
 								Screen.WriteMapChar(p.row,p.col,'*',Color.RandomLightning);
 							}
 							Screen.GLUpdate();
-							Thread.Sleep(50);
+							Term.Sleep(50);
 							frame = frames[i];
 						}
 						foreach(Actor a in damage_targets){
@@ -14145,7 +14145,7 @@ namespace Forays{
 								memlist.Add(Screen.MapChar(t.row,t.col));
 								Screen.WriteMapChar(t.row,t.col,ch);
 								Screen.GLUpdate();
-								Thread.Sleep(35);
+								Term.Sleep(35);
 							}
 							last_wall = t;
 							t = t.TileInDirection(dir);
@@ -14163,7 +14163,7 @@ namespace Forays{
 									foreach(Tile tile in tiles){
 										Screen.WriteMapChar(tile.row,tile.col,memlist[idx++]);
 										Screen.GLUpdate();
-										Thread.Sleep(35);
+										Term.Sleep(35);
 									}
 								}
 								Input.FlushInput();
@@ -14194,7 +14194,7 @@ namespace Forays{
 										foreach(Tile tile in tiles){
 											Screen.WriteMapChar(tile.row,tile.col,memlist[idx++]);
 											Screen.GLUpdate();
-											Thread.Sleep(35);
+											Term.Sleep(35);
 										}
 									}
 									Input.FlushInput();
@@ -14211,7 +14211,7 @@ namespace Forays{
 								foreach(Tile tile in tiles){
 									Screen.WriteMapChar(tile.row,tile.col,memlist[idx++]);
 									Screen.GLUpdate();
-									Thread.Sleep(35);
+									Term.Sleep(35);
 								}
 								Input.FlushInput();
 								B.Add("The passage is blocked. ",this);

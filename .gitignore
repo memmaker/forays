@@ -214,3 +214,8 @@ FakesAssemblies/
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
+bin/
+obj/
+web/dist/
+web/shots/
+node_modules/
