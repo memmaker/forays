@@ -3,6 +3,7 @@
 # .NET 10 SDK, browser-wasm (web/wasm/ForaysWeb.csproj), no workload needed.
 # Toolchain: web/toolchain.sh. Test: web/test.mjs. Deploy: web/deploy.sh.
 set -e
+command -v dotnet >/dev/null || { export PATH="$HOME/.dotnet:$PATH" DOTNET_ROOT="$HOME/.dotnet"; }
 cd "$(dirname "$0")/.."
 OUT=web/dist
 PUB=web/wasm/bin/Release/net10.0/publish/wwwroot

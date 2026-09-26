@@ -13,7 +13,12 @@
 #   is blocked by the egress proxy (403); apt's dotnet-sdk packages worked.
 set -e
 if [ "$(uname)" = Darwin ]; then
-	brew install --cask dotnet-sdk          # SDK 10.x
+	# Mac run (2026-09-26): the official script into ~/.dotnet (no sudo; the
+	# brew cask needs an admin password). Got SDK 10.0.401, no workload needed.
+	# web/build.sh adds ~/.dotnet to PATH when dotnet is not found.
+	curl -sSLO https://dot.net/v1/dotnet-install.sh
+	bash dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet"
+	export PATH="$HOME/.dotnet:$PATH" DOTNET_ROOT="$HOME/.dotnet"
 	brew install node python3
 else
 	apt-get update
