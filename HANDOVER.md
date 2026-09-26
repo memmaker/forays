@@ -247,7 +247,7 @@ holds: explore, menus, colours, panes are decided in C#.
   new player's guide, playing in the browser, About this version (upstream
   Forays/ForaysIntoNorrendrin @ `3ed1559`, memmaker/forays compare view).
   Weapon/armor claims checked against the game's own `Weapon.Description()`.
-- **Docs page:** `docs/web/forays-docs.html` = `make-help.py --page`
+- **Docs page:** (cloud) `docs/web/forays-docs.html` = `make-help.py --page`; replaced on the Mac by the Docs entry `forays.html` (stage 7)
   (standalone, same content). The Mac's `~/Desktop/Games/Roguelikes/Docs`
   (build-docs.py GAMES entry + guides.py) is not in the cloud: **Mac side**
   moves the ESSENTIALS/KEY_HINTS/TIPS/GUIDE blocks into build-docs.py /
@@ -262,5 +262,47 @@ holds: explore, menus, colours, panes are decided in C#.
   the layout file (IndexedDB). Tested: toggled on → `hurt` played.
   **No music** (none exists; not synthesized) — open.
 
-Next: stage 7 (publish: GitHub repo is already memmaker/forays; card, tree,
-deploy) — Mac side.
+### Stage 7 — publish (done, Mac)
+
+- **Mac check** (browser pane, own tab, local server): new game, windows,
+  explore, `>` walk (cancelled by a monster), `<` message, Enter menu,
+  inventory cursor, autosave → reload → "Resume saved game", Help. All fine;
+  no game fix needed. The pane runs **no service worker on local http**
+  (`coi-sw.js` registration fails), so local tests use a server that sends
+  COOP/COEP itself; on https://ruzzoli.de the service worker works.
+  Named keys in scripted tests need `code` as well as `key` (`Term.FromBrowser`).
+- **Toolchain (Mac):** .NET SDK 10.0.401 via `dotnet-install.sh --channel 10.0
+  --install-dir ~/.dotnet` (no sudo, no workload); `build.sh` adds `~/.dotnet`
+  to PATH. Recorded in `web/toolchain.sh`.
+- **Docs:** entry `forays.html` in `~/Desktop/Games/Roguelikes/Docs`
+  (`build-docs.py` GAMES + `parse_forays` reading `ForaysHelp/help.txt`,
+  `guides.py` GUIDES + SAVING); `web/make-help.py` imports it like
+  FrogComposband's → `dist/help.html`.
+- **Repos:** the cloud repo (with the `rvip/` bundle) is now private
+  **memmaker/forays-cloud** (`~/Games/forays-cloud`). This folder is the
+  public **memmaker/forays** (remote `memmaker`, branch `master`, remote
+  `upstream`): same history minus `rvip/` (`git filter-repo`), `build.sh` takes
+  `rvip-wm.js` / `rvip-sound.js` from `~/Games/rvip-tools/web/`.
+- **Live:** https://ruzzoli.de/roguelikes/forays/ (`sh web/build.sh && sh
+  web/deploy.sh`, guard as Zangband's). Card on https://ruzzoli.de/roguelikes/
+  (`forays.png`: 48×10 cells of the web grid drawn with the game's
+  `ForaysImages/font8x16.png`), tree: standalone original after Brogue
+  (`li.insp`, 2011 · Derrick Creamer; year from `LICENSE.txt` 2011–2015 — the
+  web check was not possible, RogueBasin unverified). og block in
+  `web/index.html` (by hand, image `roguelikes/forays.png`).
+
+Next: stage 8 (shrine). Templates: `~/Games/roguelikes-index/shrine/frogcomposband.html`
+and its commit `e1775e7`. Material:
+- Manual/help: the game's own `Forays/ForaysHelp/help.txt` (overview,
+  command list), `advanced_help.txt`, `feat_help.txt`, `spell_help.txt`,
+  `item_help.txt` (also under `?` in the game); the web guide
+  (`dist/help.html`, Docs `forays.html`); upstream README → http://forays.github.io/.
+- Licence: MIT, `LICENSE.txt` (© 2011–2015 Derrick Creamer).
+- Changelog: no file; version history only in upstream commit messages
+  (e.g. `2015-11-06 Version 0.8.4. Logo added. Monster balance changes.`,
+  `git log 3ed1559`), plus forays.github.io.
+- Walkthrough: none known; the in-game tips and the Docs new-player guide are
+  what exists. Report as missing unless the web has one.
+- Links to add: Info button on the card, ✦ in the tree entry, game-title link
+  on the shrine page to `../forays/`; shrine page gets its own og block
+  (image `roguelikes/forays.png`).
