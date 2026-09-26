@@ -189,4 +189,19 @@ holds: explore, menus, colours, panes are decided in C#.
   `" aT~ i~"` (item box), `" aT~ ~"` (menu); browser screenshots
   `web/shots/s3-inv.png`, `s3-menu.png`; random keys 10×3000 + loads clean.
 
-Next: stage 4 (tiles: none exist → text mode, confirm).
+### Stage 4 — tiles (done: text mode)
+
+- **Count:** 0 tiles. Forays has no tileset anywhere in its history
+  (`git log --all -- '*.png'`: only `ForaysImages/font*.png` + `logo.png`).
+  The graphical build (`Forays.csproj`) draws the same characters from bitmap
+  font sheets (`font8x16.png` = 1152×16 = 128 glyphs of 8 px + 1 px gap).
+  The game only ever draws ASCII (no char > 127 in the source), so a text
+  cell grid covers **100 %** of drawable things.
+- **Decision: text mode**, no tiles/text switch (like BOSS/ZAPM). No fallback
+  set: RVIP says ask before a foreign set, and none is bundled; nobody to ask
+  in the cloud run. Colours are the game's GL palette (`Colors.ConvertColor`).
+- Possible later polish (not done): draw the game's own `font8x16.png`
+  glyphs (integer scale, nearest-neighbour, tinted per colour) instead of the
+  browser's monospace font — the look of the OpenGL build.
+
+Next: stage 5 (web page windows).
