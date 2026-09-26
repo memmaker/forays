@@ -2,24 +2,13 @@
 
 ## Cloud experiment (read this first)
 
-This repo runs the RVIP import in a Claude Code **cloud** session. Everything
-the procedure normally takes from sibling folders on the maintainer's Mac is
-bundled under `rvip/`:
-
-- `rvip/RVIP.md` — the procedure (snapshot; the canonical copy lives on the
-  Mac). **Write lessons into `rvip/LESSONS.md`** (new file, one bullet per
-  lesson naming the RVIP section it belongs to); never edit `rvip/RVIP.md`.
-- `rvip/web/rvip-wm.js`, `rvip/web/rvip-sound.js` — shared page code every
-  game loads (window manager, sound). Use, don't fork.
-- `rvip/templates/boss/` — a text-mode (80x25 cell grid) web port that does
-  NOT use Emscripten: `web/boss.js` (cell grid drawing, key queue, WASI shim,
-  IndexedDB mirror of the save folder), `web/index.html`, `web/test.mjs`
-  (headless node test), `bcrt.pas` (the game-side screen buffer), `HANDOVER.md`.
-  Use it as the model for the page: the game keeps an 80x25 (or larger)
-  cell buffer with colours and pane info, the page only blits cells and
-  sends keys.
-- `rvip/templates/hack-HANDOVER.md` — another text game's handover, for the
-  windows/panes layout ideas (map, messages, status, inventory panes).
+The RVIP import (stages 1–6) ran in a Claude Code **cloud** session. What
+the procedure normally takes from sibling folders on the maintainer's Mac
+(the RVIP.md snapshot, the shared page code `rvip-wm.js` / `rvip-sound.js`,
+the BOSS and Hack templates) was bundled in the private `memmaker/forays-cloud`
+repo; its lessons were merged into the Mac's RVIP.md and this public history
+leaves the bundle out. The build takes `rvip-wm.js` / `rvip-sound.js` from
+`~/Games/rvip-tools/web/`, as the other games do.
 
 **The game.** Forays into Norrendrin 0.8.4 by Derrick Creamer, C#
 (github.com/Forays/ForaysIntoNorrendrin, upstream history is in this repo,
@@ -102,7 +91,7 @@ holds: explore, menus, colours, panes are decided in C#.
   hands them back at start. Save → reload → "Resume saved game" tested.
 - **Page:** `web/index.html` (BOSS template bar), `web/forays.js` (one canvas,
   whole screen, stage 5 adds the windows), loads `rvip-wm.js` and
-  `rvip-sound.js` from `rvip/web/` (copied by build.sh).
+  `rvip-sound.js` (copied by build.sh from `~/Games/rvip-tools/web/`).
 - **Tests:** `node web/test.mjs [--shot name] keys…` (Playwright 1.56.1 +
   the image's Chromium, fresh profile, prints the screen via
   `window.forays.text()`, `random:N:seed` = random keys in the browser,
