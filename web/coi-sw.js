@@ -11,6 +11,7 @@ self.addEventListener('fetch', (e) => {
 		h.set('Cross-Origin-Embedder-Policy', 'require-corp');
 		h.set('Cross-Origin-Opener-Policy', 'same-origin');
 		h.set('Cross-Origin-Resource-Policy', 'same-origin');
-		return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
+		const nobody = [101, 204, 205, 304].includes(res.status); // null-body statuses (the stats beacon answers 204): a body makes new Response() throw
+		return new Response(nobody ? null : res.body, { status: res.status, statusText: res.statusText, headers: h });
 	}));
 });
