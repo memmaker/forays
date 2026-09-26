@@ -18,36 +18,44 @@ namespace PosArrays{
 		}
 	}
 	public class PosArray<T>{ //a 2D array with a position indexer and 1D indexer in addition to the usual 2D indexer
-		public T[,] objs;
+		//RVIP: a 1D array inside. The .NET wasm (Mono) interpreter threw ArrayTypeMismatchException
+		//when storing into the generic 2D array (tile[i,j] = null in Map.InitializeNewLevel).
+		public T[] data;
+		public int Rows, Cols;
+		public int GetLength(int dim){ return dim == 0? Rows : Cols; }
+		public int GetUpperBound(int dim){ return GetLength(dim) - 1; }
+		public PosArray<T> objs{ get{ return this; } } //callers use objs.GetLength(0/1)
 		public T this[int row,int col]{
 			get{
-				return objs[row,col];
+				return data[row*Cols + col];
 			}
 			set{
-				objs[row,col] = value;
+				data[row*Cols + col] = value;
 			}
 		}
 		public T this[pos p]{
 			get{
- 				return objs[p.row,p.col];
+ 				return data[p.row*Cols + p.col];
 			}
 			set{
-				objs[p.row,p.col] = value;
+				data[p.row*Cols + p.col] = value;
 			}
 		}
 		public T this[int idx]{
 			get{
-				return objs[idx / objs.GetLength(1),idx % objs.GetLength(1)];
+				return data[idx];
 			}
 			set{
-				objs[idx / objs.GetLength(1),idx % objs.GetLength(1)] = value;
+				data[idx] = value;
 			}
 		}
 		public IEnumerator GetEnumerator(){
-			return objs.GetEnumerator();
+			return data.GetEnumerator();
 		}
 		public PosArray(int rows,int cols){
-			objs = new T[rows,cols];
+			Rows = rows;
+			Cols = cols;
+			data = new T[rows*cols];
 		}
 	}
 }

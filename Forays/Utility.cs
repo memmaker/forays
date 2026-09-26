@@ -884,7 +884,7 @@ namespace Utilities{
 			}
 		}
 		public static List<pos> PositionsWhere<T>(this PosArray<T> array,BooleanPositionDelegate condition){
-			return array.objs.PositionsWhere(condition);
+			return new byte[array.Rows,array.Cols].PositionsWhere(condition); //RVIP: PosArray has no 2D array any more; only the size is used
 		}
 		public static List<pos> PositionsWhere<T>(this T[,] array,BooleanPositionDelegate condition){
 			List<pos> result = new List<pos>();
@@ -901,7 +901,7 @@ namespace Utilities{
 			return result;
 		}
 		public static List<pos> PositionsWhereGreatest<T>(this PosArray<T> array,IntegerPositionDelegate value){ //are these useful with no Dijkstra specialization? I'm not sure.
-			return array.objs.PositionsWhereGreatest(value);
+			return new byte[array.Rows,array.Cols].PositionsWhereGreatest(value); //RVIP: PosArray has no 2D array any more; only the size is used
 		}
 		public static List<pos> PositionsWhereGreatest<T>(this T[,] array,IntegerPositionDelegate value){
 			List<pos> result = new List<pos>();
@@ -935,7 +935,7 @@ namespace Utilities{
 			return result;
 		}
 		public static List<pos> PositionsWhereLeast<T>(this PosArray<T> array,IntegerPositionDelegate value){
-			return array.objs.PositionsWhereLeast(value);
+			return new byte[array.Rows,array.Cols].PositionsWhereLeast(value); //RVIP: PosArray has no 2D array any more; only the size is used
 		}
 		public static List<pos> PositionsWhereLeast<T>(this T[,] array,IntegerPositionDelegate value){
 			List<pos> result = new List<pos>();
