@@ -50,7 +50,7 @@ anything that interrupts you stops the walk, [>] resumes it.
 The full command list can be accessed in-game by pressing [-].
 
 
-Command list:
+Command list:   (Enter opens a menu of every command)
 
 Tab : Look around   (Tab again to cycle between targets)
 r : Rest to recover health/mana/exhaustion & repair equipment
@@ -72,6 +72,11 @@ c : View character info, including feats/other active abilities
 q : Quit or save                      = : Change options
 ? : View the help screen              - : View this command list
 Alt+Enter : Fullscreen
+
+Inventory [i]: arrows/numpad 8 2 move the cursor, a letter
+applies that item, Shift+letter drops it, Ctrl+letter or Enter
+shows it with all its actions. Numpad + apply, - drop, * examine,
+0 or . close. Any other key closes the list and runs as a command.
 
 (You can also switch weapons without using the equipment screen
  with 1-5 on the top row of the keyboard, & with 8-0 for armor.)

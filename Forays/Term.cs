@@ -32,8 +32,12 @@ namespace Forays{
 		public static void Write(string s){}
 		public static void Write(char c){}
 		public static void Write(string s,params object[] args){}
-		public static bool KeyAvailable{ get{ return Backend.KeyAvailable(); } }
+		static Queue<ConsoleKeyInfo> pushed = new Queue<ConsoleKeyInfo>();
+		public static void Push(ConsoleKeyInfo k){ pushed.Enqueue(k); } //read next, before the backend's keys (RVIP menus hand over a command)
+		public static void ClearPushed(){ pushed.Clear(); }
+		public static bool KeyAvailable{ get{ return pushed.Count > 0 || Backend.KeyAvailable(); } }
 		public static ConsoleKeyInfo ReadKey(bool intercept){
+			if(pushed.Count > 0) return pushed.Dequeue();
 			Present();
 			return Backend.ReadKey();
 		}

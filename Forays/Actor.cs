@@ -3281,8 +3281,16 @@ namespace Forays{
 				ItemSelection sel = new ItemSelection();
 				sel.value = -2;
 				while(sel.value != -1){
+					Rvip.inv_mode = (ch == 'i');
 					sel = SelectItem(msg,no_redraw);
-					if(ch == 'i'){
+					Rvip.inv_mode = false;
+					if(ch == 'i'){ //RVIP 3c: letter = main action (apply), Shift+letter drops, Ctrl+letter / Enter = item menu
+						if(sel.value != -1 && (sel.action == 'a' || sel.action == 'd')){
+							ch = sel.action;
+							Rvip.reopen_inventory = true;
+							M.Redraw();
+							break;
+						}
 						sel.description_requested = true;
 					}
 					if(sel.value != -1 && sel.description_requested){
@@ -3303,14 +3311,17 @@ namespace Forays{
 						case 'a':
 							ch = 'a';
 							sel.description_requested = false;
+							Rvip.reopen_inventory = true;
 							break;
 						case 'f':
 							ch = 'f';
 							sel.description_requested = false;
+							Rvip.reopen_inventory = true;
 							break;
 						case 'd':
 							ch = 'd';
 							sel.description_requested = false;
+							Rvip.reopen_inventory = true;
 							break;
 						}
 						MouseUI.PopButtonMap();
@@ -16008,6 +16019,7 @@ namespace Forays{
 		public class ItemSelection{
 			public int value = -1;
 			public bool description_requested = false;
+			public char action = (char)0; //RVIP 3c: 'a' main action, 'd' drop, 'x' examine, 'm' menu
 			public ItemSelection(){}
 		}
 		public ItemSelection SelectItem(string message){ return SelectItem(message,false); }
@@ -16076,11 +16088,57 @@ namespace Forays{
 			ConsoleKeyInfo command;
 			char ch;
 			while(true){
+				Rvip.DrawCursor(count); //RVIP 3c: list with a cursor
 				command = Input.ReadKey();
 				ch = command.GetCommandChar();
+				bool rvip_ctrl = (command.Modifiers & ConsoleModifiers.Control) == ConsoleModifiers.Control;
+				switch(command.Key){
+				case ConsoleKey.UpArrow:
+				case ConsoleKey.NumPad8:
+					if(count > 0) Rvip.inv_cursor = (Rvip.inv_cursor - 1 + count) % count;
+					continue;
+				case ConsoleKey.DownArrow:
+				case ConsoleKey.NumPad2:
+					if(count > 0) Rvip.inv_cursor = (Rvip.inv_cursor + 1) % count;
+					continue;
+				case ConsoleKey.Enter:
+				case ConsoleKey.NumPad5:
+				case ConsoleKey.NumPad6:
+					if(count == 0) break;
+					result.value = Rvip.inv_cursor;
+					if(Rvip.inv_mode) result.action = 'm';
+					return result;
+				case ConsoleKey.Spacebar:
+					if(count == 0 || !Rvip.inv_mode) break;
+					result.value = Rvip.inv_cursor;
+					result.action = 'm';
+					return result;
+				case ConsoleKey.Add:
+				case ConsoleKey.Subtract:
+				case ConsoleKey.Multiply:
+					if(count == 0) break;
+					result.value = Rvip.inv_cursor;
+					result.action = command.Key == ConsoleKey.Add? 'a' : command.Key == ConsoleKey.Subtract? 'd' : 'x';
+					return result;
+				case ConsoleKey.NumPad0:
+				case ConsoleKey.NumPad4:
+				case ConsoleKey.Decimal:
+					if(no_cancel) continue;
+					result.value = -1;
+					return result;
+				}
+				if(rvip_ctrl && command.Key >= ConsoleKey.A && command.Key <= ConsoleKey.Z && command.Key - ConsoleKey.A < count){
+					result.value = command.Key - ConsoleKey.A; //Ctrl+letter examines
+					result.description_requested = true;
+					result.action = 'x';
+					Rvip.inv_cursor = result.value;
+					return result;
+				}
 				int i = ch - 'a';
 				if(i >= 0 && i < count){
 					result.value = i;
+					if(Rvip.inv_mode) result.action = 'a'; //letter = main action
+					Rvip.inv_cursor = i;
 					return result;
 				}
 				if(help_key && ch == '?'){
@@ -16090,7 +16148,14 @@ namespace Forays{
 				int j = Char.ToLower(ch) - 'a';
 				if(j >= 0 && j < count){
 					result.value = j;
-					result.description_requested = true;
+					if(Rvip.inv_mode) result.action = 'd'; //Shift+letter drops
+					else result.description_requested = true;
+					Rvip.inv_cursor = j;
+					return result;
+				}
+				if(Rvip.inv_mode && command.Key != ConsoleKey.Escape && command.Key != ConsoleKey.Spacebar){
+					Term.Push(command); //any other key is a normal command
+					result.value = -1;
 					return result;
 				}
 				if(no_cancel == false){

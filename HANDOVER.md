@@ -157,4 +157,36 @@ holds: explore, menus, colours, panes are decided in C#.
 - Open: `[more]` stops exist ("You walk down the stairs. [more]") → RVIP 3d
   auto_more, do in stage 3.
 
-Next: stage 3 (Enter menu + inventory).
+### Stage 3 — Enter menu + inventory (done)
+
+- **Enter menu:** `Rvip.CommandMenu()` in `Forays/Rvip.cs`, opened from
+  `Rvip.CommandKey` (Enter at the command prompt; Enter did nothing there
+  before). Five groups as in the help's command list (Look/rest/fight, Items,
+  Moving incl. explore `x` and stairs `>`, Information, Game), key next to
+  each. Arrows / numpad 8 2 9 3, Enter / 5 / 6 / Space choose, a command's own
+  key runs it, Escape / 0 / . close. Box sized to content (longest entry +
+  border + one space), scrolls when taller than the screen (it is: 32 lines on
+  a 28-row screen, footer "v more"). The chosen command is returned as the
+  command key (direct, no key queue). No mouse yet (the page sends none).
+- **Inventory:** the cursor lives in upstream's `Actor.GetItemSelection` /
+  `SelectItem`, so every item prompt ("Apply which item?", fling, drop…) has
+  it: `Rvip.DrawCursor` (dark-blue row), arrows / numpad 8 2 move,
+  Enter / 5 / 6 choose. In the `i` list (`Rvip.inv_mode`): letter = main
+  action (apply — Forays items are all consumables), Shift+letter drops,
+  Ctrl+letter examines, Enter / Space = the item box with every action and its
+  key ([a]pply [f]ling [d]rop, upstream's `UI.ItemDescriptionBox`), numpad
+  `+` `-` `*`, 0 / . / 4 close, any other key closes and runs as a command
+  (`Term.Push`, new: a pushed key is read before the backend's). After an
+  action from the list it reopens unless a monster is in view
+  (`Rvip.reopen_inventory`). `ItemSelection.action` carries the choice.
+- **Equipment `e`:** upstream's own screen, not changed (weapons/armour
+  swap with letters); no cursor added.
+- **auto_more (3d):** `Rvip.auto_more = true` → `MessageBuffer.DisplayLines`
+  skips the `[more]` key wait; messages stay in the log (`p`, stage 5 log
+  window).
+- Help: `ForaysHelp/help.txt` mentions the Enter menu and the inventory keys.
+- Tests: native `SCRIPT=" aT~ ia"` (bandages applied, list reopened),
+  `" aT~ i~"` (item box), `" aT~ ~"` (menu); browser screenshots
+  `web/shots/s3-inv.png`, `s3-menu.png`; random keys 10×3000 + loads clean.
+
+Next: stage 4 (tiles: none exist → text mode, confirm).

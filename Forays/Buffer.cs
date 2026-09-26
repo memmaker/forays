@@ -144,6 +144,7 @@ namespace Forays{
 					AddToLog(lines);
 				}
 			}
+			if(morePrompt && Rvip.auto_more) morePrompt = false; //RVIP 3d: no [more] stops; the messages stay in the log
 			if(morePrompt) {
 				Screen.WriteString(NumLines - 1,extraIdx,more,Color.Yellow);
 				MouseUI.PushButtonMap();
