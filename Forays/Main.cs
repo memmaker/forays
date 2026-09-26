@@ -1202,6 +1202,10 @@ namespace Forays{
 					if(filename == ""){
 						break;
 					}
+					foreach(char bad in Path.GetInvalidFileNameChars()){ //RVIP: a name with '/' or other invalid chars crashed the game
+						filename = filename.Replace(bad,'_');
+					}
+					filename = filename.Replace('\\','_').Replace(':','_');
 					if(!filename.Contains(".")){
 						filename = filename + ".txt";
 					}
