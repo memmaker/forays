@@ -16033,7 +16033,10 @@ namespace Forays{
 			MouseUI.AutomaticButtonsFromStrings = true;
 			colorstring top_border = "".PadRight(COLS,'-').GetColorString();
 			colorstring bottom_border = ("------Space left: " + (Global.MAX_INVENTORY_SIZE - InventoryCount()).ToString().PadRight(7,'-') + "[?] for help").PadRight(COLS,'-').GetColorString();
-			List<colorstring> strings = InventoryList().GetColorStrings();
+			List<colorstring> strings = new List<colorstring>(); //RVIP: the Inventory pane's colours (the item's own)
+			foreach(Item it in inv){
+				strings.Add(new colorstring(it.GetName(true,An,Extra),Colors.ResolveColor(it.color)));
+			}
 			bool no_ask = false;
 			bool no_cancel = false;
 			bool easy_cancel = true;
