@@ -69,7 +69,13 @@ namespace Forays{
 					cells[n++] = RGB(ch.bgcolor);
 				}
 			}
-			Backend.Present(cells,CursorTop,CursorLeft,CursorVisible,with_info? Rvip.Info() : "");
+			bool vis = CursorVisible;
+			Actor hero = Actor.player; //RVIP: no cursor on the hero (the map shows where they are)
+			if(vis && hero != null && hero.row >= 0 && hero.row < Global.ROWS && hero.col >= 0 && hero.col < Global.COLS
+			&& CursorTop == hero.row + Global.MAP_OFFSET_ROWS && CursorLeft == hero.col + Global.MAP_OFFSET_COLS){
+				vis = false;
+			}
+			Backend.Present(cells,CursorTop,CursorLeft,vis,with_info? Rvip.Info() : "");
 		}
 		//Browser key -> ConsoleKeyInfo. code = KeyboardEvent.code, key = KeyboardEvent.key.
 		static Dictionary<char,KeyValuePair<ConsoleKey,bool>> char_keys = null;
