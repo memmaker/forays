@@ -92,7 +92,10 @@ function onKey(e) {
 const hex = v => '#' + (v & 0xffffff).toString(16).padStart(6, '0');
 let wm = null, rects = {}, L = { px: 0, font: 13, wm: null }, auto = true, saveT = 0;
 const one = () => !rects.side && !rects.inv && !rects.msg && !rects.vis && !rects.equip;
-function metrics(p) { ctx.font = p + 'px ' + FONT; return [Math.ceil(ctx.measureText('M').width), Math.ceil(p * 1.2)]; }
+/* fonts: the top-bar choice (L.face) for the text panes, the map's own (L.mapFace, on its title bar) for the map */
+let face = FONT;
+function faceOf(n) { return n ? '"' + n + '", ' + FONT : FONT; }
+function metrics(p) { ctx.font = p + 'px ' + face; return [Math.ceil(ctx.measureText('M').width), Math.ceil(p * 1.2)]; }
 function fitPx(w, h, C, R) {
 	let best = 8;
 	for (let p = 8; p <= 48; p++) { const [a, b] = metrics(p); if (a * C <= w && b * R <= h) best = p; }
@@ -102,7 +105,7 @@ function size(c, w, h, p) {
 	if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
 	c.style.width = w + 'px'; c.style.height = h + 'px';
 	const g = c.getContext('2d');
-	g.setTransform(dpr, 0, 0, dpr, 0, 0); g.font = p + 'px ' + FONT; g.textBaseline = 'middle'; g.textAlign = 'center';
+	g.setTransform(dpr, 0, 0, dpr, 0, 0); g.font = p + 'px ' + face; g.textBaseline = 'middle'; g.textAlign = 'center';
 	return g;
 }
 /* cells r0..r0+R, c0..c0+C of the screen into canvas c at font size p */
@@ -123,6 +126,7 @@ function draw() {
 	requestAnimationFrame(draw);
 	if (!dirty || !scr || !wm) return;
 	dirty = false;
+	face = faceOf(L.mapFace);
 	const full = $('full'), fcv = full.querySelector('canvas'), mcv = $('map').querySelector('canvas');
 	if (one() || info.full) {
 		/* whole screen: in the map window (one window) or over all windows */
@@ -142,6 +146,7 @@ function draw() {
 	if (info.hero) RvipWM.center(mcv, (info.hero[1] + 0.5) * w, (info.hero[0] + 0.5) * h, m[3] * w, m[2] * h);
 	else RvipWM.center(mcv, 0, 0, m[3] * w, m[2] * h);
 	if (rects.side) {
+		face = faceOf(L.face);
 		const sb = $('side'), sp = Math.min(px, fitPx(sb.clientWidth, sb.clientHeight, s[3], s[2]));
 		const scv = sb.querySelector('canvas'), [sw, sh] = blit(scv, sp, s[0], s[1], s[2], s[3]);
 		scv.style.marginTop = '0px'; scv.style.marginLeft = Math.max(0, (sb.clientWidth - s[3] * sw) / 2) + 'px';
@@ -178,31 +183,49 @@ function update(i) {
 	if (i.equip) list($('equip'), i.equip, eqRow);
 	if (i.vis !== undefined) RvipWM.visible($('vis'), i.vis);
 }
-function fonts() { ['log', 'inv', 'equip', 'vis'].forEach(id => { $(id).style.fontSize = L.font + 'px'; }); }
+function fonts() { ['log', 'inv', 'equip', 'vis'].forEach(id => { $(id).style.fontSize = L.font + 'px'; $(id).style.fontFamily = L.face ? faceOf(L.face) : ''; }); dirty = true; }
 function saveLayout() { clearTimeout(saveT); saveT = setTimeout(() => putFile('web-layout.json', new TextEncoder().encode(JSON.stringify(L))), 300); }
 function autoPx() {
+	face = faceOf(L.mapFace);
 	const b = $('map'), m = paneOf('map');
 	return one() ? fitPx(b.clientWidth, b.clientHeight, COLS, ROWS) : fitPx(b.clientWidth, b.clientHeight, m[3], m[2]);
 }
 function layout() { if (auto) px = autoPx(); dirty = true; }
 async function makeWM() {
-	try { const d = await getFile('web-layout.json'); if (d) { const s = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, font: s.font || 13, wm: s.wm, sound: !!s.sound }; } } catch (_) { }
+	try { const d = await getFile('web-layout.json'); if (d) { const s = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, font: s.font || 13, wm: s.wm, sound: !!s.sound, face: s.face || '', mapFace: s.mapFace || '' }; } } catch (_) { }
 	if (L.px >= 8 && L.px <= 48) { px = L.px; auto = false; }
-	fonts();
-	$('btn-sound').classList.toggle('on', !!L.sound);
+	fonts(); loadFace(L.face); loadFace(L.mapFace);
+	$('chk-sound').checked = !!L.sound;
 	wm = RvipWM({
 		area: $('game'), menu: $('btn-layout'),
 		wins: [{ id: 'map', title: 'Map' }, { id: 'side', title: 'Character' }, { id: 'msg', title: 'Messages' },
 			{ id: 'inv', title: 'Inventory' }, { id: 'equip', title: 'Equipment' }, { id: 'vis', title: 'Visible' }],
 		multi: { d: 'h', r: 0.74, a: { d: 'h', r: 0.2, a: 'side', b: 'map' }, b: { d: 'v', r: 0.4, a: 'msg', b: { d: 'v', r: 0.55, a: 'inv', b: 'vis' } } },
 		single: 'map',
-		state: L.wm, noFont: 'map',
+		state: L.wm,
 		save: st => { L.wm = st; saveLayout(); },
-		layout: r => { rects = r; layout(); },
-		font: (id, d) => { if (id === 'side') { zoom(d); return; } L.font = Math.max(8, Math.min(28, L.font + d)); fonts(); saveLayout(); },
-		onReset: () => { auto = true; L.px = 0; L.font = 13; L.wm = wm.state(); /* sound choice kept */ fonts(); layout(); saveLayout(); }
+		layout: r => { rects = r; layout(); renderMapSel(); },
+		font: (id, d) => { if (id === 'map' || id === 'side') { zoom(d); return; } L.font = Math.max(8, Math.min(28, L.font + d)); fonts(); saveLayout(); },
+		onReset: () => { auto = true; L.px = 0; L.font = 13; L.wm = wm.state(); /* sound and font choices kept */ fonts(); layout(); saveLayout(); renderMapSel(); }
 	});
 	wm.apply();
+	renderMapSel();
+}
+/* map font select on the Map title bar (the WM rebuilds title bars: re-insert) */
+const mapSel = document.createElement('select');
+mapSel.title = 'Map font'; mapSel.innerHTML = '<option value="">Default font</option>';
+mapSel.addEventListener('pointerdown', e => e.stopPropagation());   /* not a window drag */
+mapSel.addEventListener('mousedown', e => e.stopPropagation());
+function renderMapSel() {
+	const bs = document.querySelector('#t-map .wm-btns');
+	if (bs && mapSel.parentNode !== bs) bs.insertBefore(mapSel, bs.firstChild);
+	mapSel.value = L.mapFace || '';
+}
+/* a face from the index page's fonts/ (build.sh lists them in fonts.json) */
+function loadFace(n) {
+	if (!n) { fonts(); return; }
+	const ff = new FontFace(n, 'url(../fonts/' + n + '.woff)');
+	ff.load().then(() => { document.fonts.add(ff); fonts(); layout(); }).catch(() => status('Could not load the font ' + n + '.', true));
 }
 function zoom(d) {
 	auto = false;
@@ -242,8 +265,17 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) reque
 
 /* ---------- top bar ---------- */
 function bar() {
-	$('btn-zoom-in').onclick = () => zoom(1);
-	$('btn-zoom-out').onclick = () => zoom(-1);
+	RvipWM.dropdown($('btn-file'), $('menu-file'));
+	RvipWM.dropdown($('btn-audio'), $('menu-audio'));
+	fetch('fonts.json').then(r => r.json()).then(list => {
+		[[$('sel-font'), 'face'], [mapSel, 'mapFace']].forEach(([sel, k]) => {
+			list.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n.replace(/^Web(Plus|437)_/, '').replace(/_/g, ' '); sel.appendChild(o); });
+			sel.value = L[k] || '';
+		});
+	}).catch(() => { });
+	[[$('sel-font'), 'face'], [mapSel, 'mapFace']].forEach(([sel, k]) => {
+		sel.onchange = function () { L[k] = this.value; saveLayout(); loadFace(this.value); layout(); this.blur(); };
+	});
 	$('btn-restart').onclick = () => location.reload();
 	$('btn-new').onclick = async () => {
 		if (!confirm('Delete the saved game in this browser?')) return;
@@ -261,7 +293,7 @@ function bar() {
 		await putFile('forays.sav', new Uint8Array(await f.arrayBuffer())); location.reload();
 	};
 	$('btn-help').onclick = openHelp;
-	$('btn-sound').onclick = () => { L.sound = !L.sound; $('btn-sound').classList.toggle('on', L.sound); saveLayout(); };
+	$('chk-sound').onchange = function () { L.sound = this.checked; saveLayout(); this.blur(); };
 	$('help-close').onclick = () => { $('help').hidden = true; };
 	document.querySelectorAll('#bar button').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
 }
