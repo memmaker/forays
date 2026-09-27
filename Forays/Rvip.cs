@@ -93,7 +93,7 @@ namespace Forays{
 		public static readonly string[][] Commands = {
 			new string[]{"Look, rest, fight", "Tab","Look around (Tab again: next target)", "r","Rest (heal, repair; once per level)", "t","Torch on/off", "z","Cast a spell", "s","Fire an arrow", "e","Equipment"},
 			new string[]{"Items", "i","Inventory", "a","Apply (use) an item", "f","Fling an item", "g","Pick up an item", "d","Drop an item"},
-			new string[]{"Moving", "x","Explore automatically", "X","Travel to a location", ">","Take the stairs / walk to them", ".","Wait a turn", "o","Operate terrain", "w","Walk in a direction", "m","Dungeon map"},
+			new string[]{"Moving", "x","Explore automatically", "X","Travel to a location", ">","Walk to the stairs (on them: take them)", ".","Wait a turn", "o","Operate terrain", "m","Dungeon map"},
 			new string[]{"Information", "p","Previous messages", "\\","Known item types", "c","Character info and feats"},
 			new string[]{"Game", "q","Quit or save", "=","Options", "?","Help", "-","Command list"},
 		};
