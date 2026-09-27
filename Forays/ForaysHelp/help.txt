@@ -43,8 +43,8 @@ though.
 
 When you find stairs, you can walk down them with [>]. (It's a
 one-way trip, so don't leave anything behind!) Away from the
-stairs, [>] walks to the stairs you have seen and takes them;
-anything that interrupts you stops the walk, [>] resumes it.
+stairs, [>] walks to the stairs you have seen and stops there
+([>] again takes them); anything that interrupts you stops the walk, [>] resumes it.
 
 
 The full command list can be accessed in-game by pressing [-].

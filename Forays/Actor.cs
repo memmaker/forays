@@ -2960,7 +2960,7 @@ namespace Forays{
 								}
 							}
 						}
-						//RVIP: no "Travel to the stairs?" prompt; walk there and take them on arrival (Rvip.CommandKey)
+						//RVIP: no "Travel to the stairs?" prompt; walk there and stop on arrival (Rvip.CommandKey); '>' again takes them
 						Rvip.stairs_walk = true;
 /*RVIP
 						MouseUI.PushButtonMap(MouseMode.YesNoPrompt);

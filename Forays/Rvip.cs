@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 namespace Forays{
 	public static class Rvip{
-		public static bool stairs_walk = false; //'>' away from the stairs: walk there, take them on arrival
+		public static bool stairs_walk = false; //'>' away from the stairs: walk there and stop; '>' again takes them
 		public static bool auto_more = true; //RVIP 3d: [more] prompts don't wait (MessageBuffer.DisplayLines)
 		public static bool reopen_inventory = false; //an action chosen from the 'i' list reopens it
 		public static ConsoleKeyInfo Key(char c){
@@ -21,10 +21,12 @@ namespace Forays{
 		}
 		//The command read in Actor.InputHuman.
 		public static ConsoleKeyInfo CommandKey(Actor player){
-			if(stairs_walk){
+			if(stairs_walk){ //arrived (or stopped): only walk, the player presses '>' again to take them
 				stairs_walk = false;
 				if(player.tile().type == TileType.STAIRS){
-					return Key('>');
+					Actor.B.Add("You reach the stairs. Press > to take them. ");
+					Actor.B.Print(false);
+					player.Cursor();
 				}
 			}
 			if(reopen_inventory){

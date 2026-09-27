@@ -28,7 +28,7 @@ KEY_HINTS = [
     ('x', 'Explore automatically until something happens'),
     ('Enter', 'Menu of all commands'),
     ('i', 'Inventory with a cursor: letter = use, Shift+letter = drop, Enter = all actions'),
-    ('>', 'Take the stairs down (from anywhere: walks to the stairs you have seen)'),
+    ('>', 'Take the stairs down (from anywhere: walks to the stairs you have seen; press again to take them)'),
     ('q', 'Quit or save (the browser also saves by itself)'),
 ]
 
