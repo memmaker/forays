@@ -2161,6 +2161,7 @@ namespace Forays{
 						}
 					}
 					else{
+						Term.Sleep(40); //RVIP: explore / travel / stair walk steps are painted one by one
 						PlayerWalk(DirectionOf(path[0]));
 						if(path.Count > 0){
 							if(DistanceFrom(path[0]) == 0){
