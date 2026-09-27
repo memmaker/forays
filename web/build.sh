@@ -12,7 +12,7 @@ dotnet publish web/wasm/ForaysWeb.csproj -c Release -nologo -v q | grep -v "^$" 
 [ -f "$PUB/_framework/dotnet.js" ] || { echo "publish failed"; exit 1; }
 rm -rf "$OUT" && mkdir -p "$OUT"
 cp -r "$PUB/_framework" "$OUT/_framework"
-cp web/index.html web/forays.js web/worker.js web/coi-sw.js "$HOME/Games/rvip-tools/web/rvip-wm.js" "$HOME/Games/rvip-tools/web/rvip-sound.js" "$OUT/"
+cp web/index.html web/forays.js web/worker.js web/coi-sw.js "$OUT/"
 python3 web/make-help.py > "$OUT/help.html"
 python3 web/make-sounds.py "$OUT"
 du -sh "$OUT"
