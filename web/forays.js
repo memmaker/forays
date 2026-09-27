@@ -179,6 +179,8 @@ function update(i) {
 	const log = $('log');
 	if (i.logReset) log.textContent = '';
 	if (i.log) i.log.forEach((l, n) => RvipWM.log(log, l, n === 0 && i.logReplace));
+	const mb = $('msgb'); mb.scrollTop = mb.scrollHeight;   /* newest message in view on every flush */
+	log.scrollTop = log.scrollHeight;
 	if (i.inv) list($('inv'), i.inv, invRow);
 	if (i.equip) list($('equip'), i.equip, eqRow);
 	if (i.vis !== undefined) RvipWM.visible($('vis'), i.vis);
