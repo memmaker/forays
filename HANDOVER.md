@@ -5,7 +5,7 @@
 The RVIP import (stages 1–6) ran in a Claude Code **cloud** session. What
 the procedure normally takes from sibling folders on the maintainer's Mac
 (the RVIP.md snapshot, the shared page code `rvip-wm.js` / `rvip-sound.js`,
-the BOSS and Hack templates) was bundled in the private `memmaker/forays-cloud`
+the BOSS and Hack templates) was bundled in the private `memmaker/forays-cloud` (deleted 2026-09-27)
 repo; its lessons were merged into the Mac's RVIP.md and this public history
 leaves the bundle out. The build takes `rvip-wm.js` / `rvip-sound.js` from
 `~/Games/rvip-tools/web/`, as the other games do.
@@ -279,7 +279,7 @@ holds: explore, menus, colours, panes are decided in C#.
   `guides.py` GUIDES + SAVING); `web/make-help.py` imports it like
   FrogComposband's → `dist/help.html`.
 - **Repos:** the cloud repo (with the `rvip/` bundle) is now private
-  **memmaker/forays-cloud**. This folder is the
+  **memmaker/forays-cloud** (deleted 2026-09-27). This folder is the
   public **memmaker/forays** (remote `memmaker`, branch `master`, remote
   `upstream`): same history minus `rvip/` (`git filter-repo`), `build.sh` takes
   `rvip-wm.js` / `rvip-sound.js` from `~/Games/rvip-tools/web/`.
