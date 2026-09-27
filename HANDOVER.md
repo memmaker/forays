@@ -279,7 +279,7 @@ holds: explore, menus, colours, panes are decided in C#.
   `guides.py` GUIDES + SAVING); `web/make-help.py` imports it like
   FrogComposband's → `dist/help.html`.
 - **Repos:** the cloud repo (with the `rvip/` bundle) is now private
-  **memmaker/forays-cloud** (`~/Games/forays-cloud`). This folder is the
+  **memmaker/forays-cloud**. This folder is the
   public **memmaker/forays** (remote `memmaker`, branch `master`, remote
   `upstream`): same history minus `rvip/` (`git filter-repo`), `build.sh` takes
   `rvip-wm.js` / `rvip-sound.js` from `~/Games/rvip-tools/web/`.
