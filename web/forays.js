@@ -13,9 +13,16 @@ const $ = id => document.getElementById(id);
 const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
 let worker, ring, db, ended = false;
-/* shared page code (rvip-app.js): status, help, crash reports. Saves live in this page's own
- * IndexedDB store (the game runs in a worker, there is no Module.FS), so File stays local. */
-const app = RvipApp({ name: 'forays', save: () => null, clear: () => { }, put: () => 'unused' });
+/* shared page code (rvip-app.js): status, help, crash reports, export/import/new game.
+ * Saves live in this page's own IndexedDB store (the game runs in a worker, no Module.FS). */
+const app = RvipApp({
+	name: 'forays',
+	save: async () => (await getFile('forays.sav')) ? 'forays.sav' : null,
+	read: name => getFile(name),
+	clear: () => delFile('forays.sav'),
+	put: (file, data) => putFile('forays.sav', data),
+	noSave: 'No saved game yet. Save first (q, then "Save your progress").'
+});
 let scr = null, cur = { row: 0, col: 0, vis: false }, info = {}, dirty = true;
 let ctx, px = 16;
 
@@ -280,21 +287,6 @@ function bar() {
 		sel.onchange = function () { L[k] = this.value; saveLayout(); loadFace(this.value); layout(); this.blur(); };
 	});
 	$('btn-restart').onclick = () => location.reload();
-	$('btn-new').onclick = async () => {
-		if (!confirm('Delete the saved game in this browser?')) return;
-		await delFile('forays.sav'); location.reload();
-	};
-	$('btn-export').onclick = async () => {
-		const d = await getFile('forays.sav');
-		if (!d) { alert('No saved game yet. Save first (q, then "Save your progress").'); return; }
-		const a = document.createElement('a');
-		a.href = URL.createObjectURL(new Blob([d])); a.download = 'forays.sav'; a.click();
-	};
-	$('btn-import').onclick = () => $('import-file').click();
-	$('import-file').onchange = async (e) => {
-		const f = e.target.files[0]; if (!f) return;
-		await putFile('forays.sav', new Uint8Array(await f.arrayBuffer())); location.reload();
-	};
 	$('chk-sound').onchange = function () { L.sound = this.checked; saveLayout(); this.blur(); };
 	document.querySelectorAll('#bar button').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
 }
