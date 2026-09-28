@@ -12,14 +12,12 @@ const SLOT = 48, NSLOT = 64;
 const $ = id => document.getElementById(id);
 const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
-let worker, ring, db, running = false, ended = false;
+let worker, ring, db, ended = false;
+/* shared page code (rvip-app.js): status, help, crash reports. Saves live in this page's own
+ * IndexedDB store (the game runs in a worker, there is no Module.FS), so File stays local. */
+const app = RvipApp({ name: 'forays', save: () => null, clear: () => { }, put: () => 'unused' });
 let scr = null, cur = { row: 0, col: 0, vis: false }, info = {}, dirty = true;
 let ctx, px = 16;
-
-function status(msg, isError) {
-	const s = $('status');
-	s.textContent = msg; s.hidden = !msg; s.classList.toggle('error', !!isError);
-}
 
 /* ---------- cross-origin isolation (SharedArrayBuffer) ---------- */
 async function isolate() {
@@ -75,7 +73,7 @@ function sendKey(code, key, mods) {
 }
 const PASS = new Set(['F5', 'F11', 'F12']);
 function onKey(e) {
-	if (!running || !$('help').hidden) return;
+	if (!app.running) return;
 	if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
 	if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock', 'Dead'].includes(e.key)) return;
 	if (e.metaKey || PASS.has(e.code)) return;
@@ -90,7 +88,7 @@ function onKey(e) {
  * them while the game shows a whole-screen view (info.full). One window: the
  * whole screen in the map window. */
 const hex = v => '#' + (v & 0xffffff).toString(16).padStart(6, '0');
-let wm = null, rects = {}, L = { px: 0, font: 13, wm: null }, auto = true, saveT = 0;
+let wm = null, rects = {}, L = { px: 0, wm: null }, auto = true, saveT = 0;
 const one = () => !rects.side && !rects.inv && !rects.msg && !rects.vis && !rects.equip;
 /* fonts: the top-bar choice (L.face) for the text panes, the map's own (L.mapFace, on its title bar) for the map */
 let face = FONT;
@@ -147,7 +145,8 @@ function draw() {
 	else RvipWM.center(mcv, 0, 0, m[3] * w, m[2] * h);
 	if (rects.side) {
 		face = faceOf(L.face);
-		const sb = $('side'), sp = Math.min(px, fitPx(sb.clientWidth, sb.clientHeight, s[3], s[2]));
+		const sb = $('side'), fs = wm.state().fs.side, fit = fitPx(sb.clientWidth, sb.clientHeight, s[3], s[2]), sp = fs ? Math.min(fs, fit) : Math.min(px, fit);
+		if (!fs) sb.style.fontSize = sp + 'px';   /* A−/A+ start from the size shown */
 		const scv = sb.querySelector('canvas'), [sw, sh] = blit(scv, sp, s[0], s[1], s[2], s[3]);
 		scv.style.marginTop = '0px'; scv.style.marginLeft = Math.max(0, (sb.clientWidth - s[3] * sw) / 2) + 'px';
 	}
@@ -185,7 +184,7 @@ function update(i) {
 	if (i.equip) list($('equip'), i.equip, eqRow);
 	if (i.vis !== undefined) RvipWM.visible($('vis'), i.vis);
 }
-function fonts() { ['log', 'inv', 'equip', 'vis'].forEach(id => { $(id).style.fontSize = L.font + 'px'; $(id).style.fontFamily = L.face ? faceOf(L.face) : ''; }); dirty = true; }
+function fonts() { ['log', 'inv', 'equip', 'vis'].forEach(id => { $(id).style.fontFamily = L.face ? faceOf(L.face) : ''; }); dirty = true; }
 function saveLayout() { clearTimeout(saveT); saveT = setTimeout(() => putFile('web-layout.json', new TextEncoder().encode(JSON.stringify(L))), 300); }
 function autoPx() {
 	face = faceOf(L.mapFace);
@@ -194,7 +193,9 @@ function autoPx() {
 }
 function layout() { if (auto) px = autoPx(); dirty = true; }
 async function makeWM() {
-	try { const d = await getFile('web-layout.json'); if (d) { const s = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, font: s.font || 13, wm: s.wm, sound: !!s.sound, face: s.face || '', mapFace: s.mapFace || '' }; } } catch (_) { }
+	let s0 = {};
+	try { const d = await getFile('web-layout.json'); if (d) { const s = s0 = JSON.parse(new TextDecoder().decode(d)); L = { px: s.px | 0, wm: s.wm, sound: !!s.sound, face: s.face || '', mapFace: s.mapFace || '' }; } } catch (_) { }
+	if (s0.font && L.wm && !L.wm.fs) L.wm.fs = { msg: s0.font, inv: s0.font, equip: s0.font, vis: s0.font };   /* old layout: one text size */
 	if (L.px >= 8 && L.px <= 48) { px = L.px; auto = false; }
 	fonts(); loadFace(L.face); loadFace(L.mapFace);
 	$('chk-sound').checked = !!L.sound;
@@ -207,8 +208,8 @@ async function makeWM() {
 		state: L.wm,
 		save: st => { L.wm = st; saveLayout(); },
 		layout: r => { rects = r; layout(); renderMapSel(); },
-		font: (id, d) => { if (id === 'map' || id === 'side') { zoom(d); return; } L.font = Math.max(8, Math.min(28, L.font + d)); fonts(); saveLayout(); },
-		onReset: () => { auto = true; L.px = 0; L.font = 13; L.wm = wm.state(); /* sound and font choices kept */ fonts(); layout(); saveLayout(); renderMapSel(); }
+		zoom: { map: (p, d) => zoom(d), side: () => { dirty = true; } },   /* map: its own px steps; side: RvipWM.fontSize('side') */
+		onReset: () => { auto = true; L.px = 0; L.wm = wm.state(); /* sound and font choices kept */ fonts(); layout(); saveLayout(); renderMapSel(); }
 	});
 	wm.apply();
 	renderMapSel();
@@ -227,7 +228,7 @@ function renderMapSel() {
 function loadFace(n) {
 	if (!n) { fonts(); return; }
 	const ff = new FontFace(n, 'url(../fonts/' + n + '.woff)');
-	ff.load().then(() => { document.fonts.add(ff); fonts(); layout(); }).catch(() => status('Could not load the font ' + n + '.', true));
+	ff.load().then(() => { document.fonts.add(ff); fonts(); layout(); }).catch(() => app.status('Could not load the font ' + n + '.', true));
 }
 function zoom(d) {
 	auto = false;
@@ -243,7 +244,7 @@ function onMessage(e) {
 		scr = m.cells; cur = { row: m.row, col: m.col, vis: m.vis };
 		if (m.info) { try { info = JSON.parse(m.info); update(info); } catch (err) { console.error('info', err); } }
 		dirty = true;
-		if (!running) { running = true; status(''); $('game').hidden = false; wm.apply(); layout(); }
+		if (!app.running && !ended) { app.running = true; app.status(''); $('game').hidden = false; wm.apply(); layout(); }
 		break;
 	case 'sound': if (L.sound) RVIPSound.play([m.name], 0.6); break;
 	case 'beacon': // RVIP 12: the game builds the report, the page only sends it
@@ -252,16 +253,16 @@ function onMessage(e) {
 	case 'store': putFile(m.name, m.data); break;
 	case 'delete': delFile(m.name); break;
 	case 'quit': case 'exit': gameOver(); break;
-	case 'crash': status('The game crashed: ' + m.msg.split('\n')[0] + ' — reload the page.', true); console.error(m.msg); break;
+	case 'crash': app.crashed(new Error(m.msg.split('\n')[0])); console.error(m.msg); break;
 	}
 }
 function gameOver() {
 	if (ended) return;
-	ended = true; running = false;
+	ended = true; app.running = false;
 	setTimeout(() => { $('overlay').hidden = false; }, 300);
 }
 /* autosave (RVIP W5): the game saves only while it waits for a command */
-function requestSave() { if (running && !ended && info.atCmd) sendKey('RvipSave', '', ''); }
+function requestSave() { if (app.running && !ended && info.atCmd) sendKey('RvipSave', '', ''); }
 setInterval(requestSave, 120000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) requestSave(); });
 
@@ -294,22 +295,9 @@ function bar() {
 		const f = e.target.files[0]; if (!f) return;
 		await putFile('forays.sav', new Uint8Array(await f.arrayBuffer())); location.reload();
 	};
-	$('btn-help').onclick = openHelp;
 	$('chk-sound').onchange = function () { L.sound = this.checked; saveLayout(); this.blur(); };
-	$('help-close').onclick = () => { $('help').hidden = true; };
 	document.querySelectorAll('#bar button').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
 }
-async function openHelp() {
-	$('help').hidden = false;
-	const body = $('help-body');
-	if (!body.dataset.loaded) {
-		try { body.innerHTML = await (await fetch('help.html')).text(); body.dataset.loaded = 1; }
-		catch (_) { body.textContent = 'Help is not available.'; }
-	}
-	body.focus();
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('help').hidden) { $('help').hidden = true; e.preventDefault(); e.stopPropagation(); } }, true);
-
 /* hooks for tests (web/test.mjs) */
 window.forays = {
 	text() { if (!scr) return ''; let s = ''; for (let r = 0; r < ROWS; r++) { for (let c = 0; c < COLS; c++) { const k = scr[(r * COLS + c) * 3]; s += k < 32 ? ' ' : String.fromCharCode(k); } s += '\n'; } return s; },
@@ -317,14 +305,14 @@ window.forays = {
 	save: requestSave,
 	get layout() { return { rects, px, auto, full: info.full }; },
 	get info() { return info; },
-	get running() { return running; },
+	get running() { return app.running; },
 	get ended() { return ended; },
 };
 
 async function main() {
 	ctx = document.createElement('canvas').getContext('2d');
 	bar();
-	if (!await isolate()) { status('This browser cannot run the game here (no cross-origin isolation / SharedArrayBuffer).', true); return; }
+	if (!await isolate()) { app.status('This browser cannot run the game here (no cross-origin isolation / SharedArrayBuffer).', true); return; }
 	db = await openDB();
 	await makeWM();
 	const files = await allFiles();
@@ -333,11 +321,11 @@ async function main() {
 	ring = new Int32Array(new SharedArrayBuffer(4 * (2 + NSLOT * SLOT)));
 	worker = new Worker('worker.js', { type: 'module' });
 	worker.onmessage = onMessage;
-	worker.onerror = e => status('The game crashed: ' + e.message + ' — reload the page.', true);
+	worker.onerror = e => app.crashed(e);
 	worker.postMessage({ t: 'init', ring: ring.buffer, files });
 	window.addEventListener('keydown', onKey);
 	window.addEventListener('resize', () => { wm.apply(); layout(); });
-	window.addEventListener('beforeunload', e => { if (running) { e.preventDefault(); e.returnValue = ''; } });
+	window.addEventListener('beforeunload', e => { if (app.running) { e.preventDefault(); e.returnValue = ''; } });
 	requestAnimationFrame(draw);
 }
 main();

@@ -49,7 +49,8 @@
 	#msgb { display: flex; flex-direction: column; }
 	#log { flex: 1; min-height: 0; }
 	.win > .body canvas, #full canvas { position: absolute; }
-	#log { overflow-y: auto; padding: 4px 8px; font: 13px/1.4 ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+	#msgb { font: 13px/1.4 ui-monospace, Menlo, monospace; }   /* A−/A+ sets its font-size */
+	#log { overflow-y: auto; padding: 4px 8px; font: inherit; white-space: pre-wrap; }
 	#log div + div { border-top: 1px solid var(--line); }
 	#full { position: absolute; inset: 0; z-index: 3; background: #000; }
 	#full[hidden] { display: none; }
@@ -139,6 +140,7 @@
 </div>
 
 <script src="../rvip-wm.js"></script>
+<script src="../rvip-app.js"></script>
 <script src="../rvip-sound.js"></script>
 <script type="module" src="forays.js"></script>
 </body>
