@@ -277,9 +277,9 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) reque
 function bar() {
 	RvipWM.dropdown($('btn-file'), $('menu-file'));
 	RvipWM.dropdown($('btn-audio'), $('menu-audio'));
-	fetch('fonts.json').then(r => r.json()).then(list => {
+	RvipWM.fonts.then(list => {
 		[[$('sel-font'), 'face'], [mapSel, 'mapFace']].forEach(([sel, k]) => {
-			list.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n.replace(/^Web(Plus|437)_/, '').replace(/_/g, ' '); sel.appendChild(o); });
+			RvipWM.fontOptions(sel);
 			sel.value = L[k] || '';
 		});
 	}).catch(() => { });
